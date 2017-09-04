@@ -1,7 +1,9 @@
 LUNAR
 
     launch {
-      int a, i, f;
+      int a;
+      int i;
+      int f;
       char b;
       real c;
       string d;
