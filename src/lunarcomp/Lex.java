@@ -18,12 +18,13 @@ public class Lex {
         
         lexemas = str.split(" ");
         
+        
     }
     
     public void criar_tokens() {
         
         int linha = 0;
-        
+        tokens = new ArrayList<Token>();
         for(int i = 0; i < lexemas.length; i++) {
             switch(lexemas[i]) {
                 case "launch":
