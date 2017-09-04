@@ -101,9 +101,9 @@ public class TelaCompController implements Initializable {
     private void evtExecutar(ActionEvent event) {
         txOutput.setText("");
         Lex l = new Lex();
-        String lexemas[] = l.lerLexemas(txEditor.getText());
-        for(int i = 0; i < lexemas.length; i++) {
-            txOutput.setText(txOutput.getText() + " | " + lexemas[i]);
+        l.ler_lexemas(txEditor.getText());
+        for(int i = 0; i < l.getLexemas().length; i++) {
+            txOutput.setText(txOutput.getText() + "\n" + l.getLexemas()[i]);
         }
        
     }
