@@ -39,12 +39,13 @@ public class Lex {
             } else if(lexemas[i].equals("...")) {
                 j = i+1;
                 while(j < lexemas.length && !lexemas[j].equals("...")){
-                    //System.out.println(lexemas[i]);
+                    
                     if(!lexemas[j].equals("\n"))
                         lexemas[j] = "";
                     j++;
                 }
-                lexemas[j] = "";
+                if(j < lexemas.length)
+                    lexemas[j] = "";
             }
             else { 
                 switch(lexemas[i]) {
@@ -163,7 +164,7 @@ public class Lex {
                         else if(verificaNum(lexemas[i]) == 1) // é float
                             tokens.add(new Token("T_NUM", Float.parseFloat(lexemas[i]), linha));
                         else if(verificaNum(lexemas[i]) == 0) // é ID
-                            ids.add(new Token("T_ID", lexemas[i], linha));
+                            tokens.add(new Token("T_ID", lexemas[i], linha));
                     break;
                 }
             } 
