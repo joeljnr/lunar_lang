@@ -40,6 +40,8 @@ public class TelaCompController implements Initializable {
         Window stage = null;
         String selectedFile = fileChooser.showOpenDialog(stage).toString();
         
+        txEditor.setText("");
+        
         try 
         {
             FileReader arq = new FileReader(selectedFile);
@@ -104,7 +106,7 @@ public class TelaCompController implements Initializable {
         l.ler_lexemas(txEditor.getText());
         l.criar_tokens();
         for(int i = 0; i < l.getTokens().size(); i++) {
-            txOutput.setText(txOutput.getText() + "\nToken: " + l.getTokens().get(i).getToken() + "\nLex: " + l.getTokens().get(i).getLex() + "\n:inha: " + l.getTokens().get(i).getLinha());
+            txOutput.setText(txOutput.getText() + "\nToken: " + l.getTokens().get(i).getToken() + "\nLex: " + l.getTokens().get(i).getLex() + "\nLinha: " + l.getTokens().get(i).getLinha() + "\n");
         }
        
     }
