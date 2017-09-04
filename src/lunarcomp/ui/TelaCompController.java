@@ -19,6 +19,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import lunarcomp.Lex;
 
 public class TelaCompController implements Initializable {
 
@@ -95,9 +96,16 @@ public class TelaCompController implements Initializable {
             txEditor.setText("");
         }
     }
-
+    
     @FXML
     private void evtExecutar(ActionEvent event) {
+        txOutput.setText("");
+        Lex l = new Lex();
+        String lexemas[] = l.lerLexemas(txEditor.getText());
+        for(int i = 0; i < lexemas.length; i++) {
+            txOutput.setText(txOutput.getText() + " | " + lexemas[i]);
+        }
+       
     }
     
 }
