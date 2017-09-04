@@ -1,49 +1,38 @@
 package lunarcomp;
 
-public class Token {
+public class Token<T> {
     private String token;
-    private String lex;
-    private int lin;
-    private int col;
+    private T lex;
+    private int linha;
 
-    public Token(String token, String lex, int lin, int col) {
+    public Token(String token, T lex, int linha) {
         this.token = token;
         this.lex = lex;
-        this.lin = lin;
-        this.col = col;
+        this.linha = linha;
     }
     
     public String getToken() {
         return token;
     }
 
-    public String getLex() {
+    public T getLex() {
         return lex;
     }
 
-    public int getLin() {
-        return lin;
-    }
-
-    public int getCol() {
-        return col;
+    public int getLinha() {
+        return linha;
     }
 
     public void setToken(String token) {
         this.token = token;
     }
 
-    public void setLex(String lex) {
+    public void setLex(T lex) {
         this.lex = lex;
     }
 
-    public void setLin(int lin) {
-        this.lin = lin;
+    public void setLinha(int linha) {
+        this.linha = linha;
     }
-
-    public void setCol(int col) {
-        this.col = col;
-    }
-    
     
 }
