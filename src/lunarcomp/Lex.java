@@ -164,7 +164,7 @@ public class Lex {
                         else if(verificaNum(lexemas[i]) == 1) // é float
                             tokens.add(new Token("T_NUM", Float.parseFloat(lexemas[i]), linha));
                         else if(verificaNum(lexemas[i]) == 0) // é ID
-                            tokens.add(new Token("T_ID", lexemas[i], linha));
+                            ids.add(new Token("T_ID", lexemas[i], linha));
                     break;
                 }
             } 
@@ -173,13 +173,11 @@ public class Lex {
     
     public int verificaNum(String str) {
         if(str != "\n" && str != "") {
-            if(str.charAt(0) != '0' || str.charAt(0) != '1' || str.charAt(0) != '2' || str.charAt(0) != '3' || 
-                    str.charAt(0) != '4' || str.charAt(0) != '5' || str.charAt(0) != '6' || str.charAt(0) != '7' || str.charAt(0) != '8' || str.charAt(0) != '9' ) {
+            if(!Character.isDigit(str.charAt(0))) {
                 return 0; //é ID;
             }
 
             for(int i = 0; i < str.length(); i++) {
-
                 if(str.charAt(i) == '.')
                     return 1; //é float
             }
