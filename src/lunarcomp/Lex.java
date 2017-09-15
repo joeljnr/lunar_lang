@@ -62,6 +62,12 @@ public class Lex {
                     case "loop": 
                         tokens.add(new Token("T_LOOP", "loop", linha));
                         break;
+                    case "down": 
+                        tokens.add(new Token("T_LOOP_DOWN", "down", linha));
+                        break;
+                    case "to": 
+                        tokens.add(new Token("T_LOOP_TO", "to", linha));
+                        break;
                     case "until": 
                         tokens.add(new Token("T_UNTIL", "until", linha));
                         break;
@@ -152,7 +158,7 @@ public class Lex {
                     case "!": 
                         tokens.add(new Token("T_OPN", "!", linha));
                         break;
-                    case "\"": 
+                    case "\"": //reconhece string
                         str = "";
                         i++;
                         while(i < lexemas.length && !lexemas[i].equals("\"") && !lexemas[i].equals("\n") && !lexemas[i].equals(";")) {
@@ -163,7 +169,7 @@ public class Lex {
                         }
                         
                         if(lexemas[i] == "\n" || lexemas[i].equals(";")) {
-                            _erros.add(new Erro("ERR_STR", linha, "String incorreta"));
+                            _erros.add(new Erro("ERR_STR", linha, "String incorreta (erro léxico)"));
                         } 
                         
                         System.out.println(str);
@@ -171,7 +177,7 @@ public class Lex {
                             ids.add(new Token("T_STRING", str, linha));
                         
                         break;
-                    case "'":
+                    case "'": //reconhece char
                         i++;
                         System.out.println(lexemas[i]);
                         if(!lexemas[i].equals("'") && !lexemas[i].equals("\n") && lexemas[i+1].equals("'") && !lexemas[i].equals(";")) {
@@ -179,7 +185,7 @@ public class Lex {
                             i++;
                         }
                         else
-                            _erros.add(new Erro("ERR_CHAR", linha, "Char incorreto"));
+                            _erros.add(new Erro("ERR_CHAR", linha, "Char incorreto (erro léxico)"));
                             while(lexemas[i].equals("\n"))
                                 i++;
                         break;
