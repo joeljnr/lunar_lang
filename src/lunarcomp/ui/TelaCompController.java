@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -19,7 +20,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import lunarcomp.Erro;
 import lunarcomp.Lex;
+import static lunarcomp.LunarComp._erros;
 
 public class TelaCompController implements Initializable {
 
@@ -106,14 +109,21 @@ public class TelaCompController implements Initializable {
         l.ler_lexemas(txEditor.getText());
         l.criar_tokens();
         
+        /*
         for(int i = 0; i < l.getIds().size(); i++) {
             txOutput.setText(txOutput.getText() + "\nToken: " + l.getIds().get(i).getToken() + "\nId: " + l.getIds().get(i).getLex() + "\nLinha: " + l.getIds().get(i).getLinha() + "\n");
         }
+        */
         /*
         for(int i = 0; i < l.getTokens().size(); i++) {
             txOutput.setText(txOutput.getText() + "\nToken: " + l.getTokens().get(i).getToken() + "\nLex: " + l.getTokens().get(i).getLex() + "\nLinha: " + l.getTokens().get(i).getLinha() + "\n");
-        }*/
-       
+        }
+        */
+        
+        for(int i = 0; i < _erros.size(); i++) {
+            txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
+        }
+        _erros.clear();
     }
     
 }

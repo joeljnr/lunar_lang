@@ -2,6 +2,7 @@
 package lunarcomp;
 
 import java.util.ArrayList;
+import static lunarcomp.LunarComp._erros;
 
 public class Lex {
     
@@ -14,7 +15,7 @@ public class Lex {
         String str = codigo.replace(";", " ; ").replace("(", " ( ").replace(")", " ) ").replace("{", " { ").replace("}", " } ");
         str = str.replace("+", " + ").replace("-", " - ").replace("/", " / ").replace("*", " * ").replace(">", " > ");
         str = str.replace("<", " < ").replace(">=", " >= ").replace("<=", " <= ").replace("==", " == ").replace("!=", " != ").replace("!", " ! ");
-        str = str.replace("++", " ++ ").replace("--", " -- ").replace("=", " = ").replace("..", " .. ").replace("\"", " \" ").replace(",", " , ");
+        str = str.replace("++", " ++ ").replace("--", " -- ").replace("=", " = ").replace("..", " .. ").replace("\"", " \" ").replace("'", " ' ").replace(",", " , ");
         str = str.replace(".. .", " ... ").replace("\t", " ").replace("\n", " \n ").replaceAll("[ ]+", " ");
         
         lexemas = str.split(" ");
@@ -26,7 +27,7 @@ public class Lex {
         
         int linha = 1;
         int i, j;
-        
+        String str;
         tokens = new ArrayList<Token>();
         ids = new ArrayList<Token>();
         for(i = 0; i < lexemas.length; i++) {
@@ -152,18 +153,46 @@ public class Lex {
                         tokens.add(new Token("T_OPN", "!", linha));
                         break;
                     case "\"": 
-                        tokens.add(new Token("T_ASPAS", "\"", linha));
+                        str = "";
+                        i++;
+                        while(i < lexemas.length && !lexemas[i].equals("\"") && !lexemas[i].equals("\n") && !lexemas[i].equals(";")) {
+                            if(!str.isEmpty())
+                                str += " ";
+                            str += lexemas[i];
+                            i++;
+                        }
+                        
+                        if(lexemas[i] == "\n" || lexemas[i].equals(";")) {
+                            _erros.add(new Erro("ERR_STR", linha, "String incorreta"));
+                        } 
+                        
+                        System.out.println(str);
+                        if(!str.isEmpty())
+                            ids.add(new Token("T_STRING", str, linha));
+                        
+                        break;
+                    case "'":
+                        i++;
+                        System.out.println(lexemas[i]);
+                        if(!lexemas[i].equals("'") && !lexemas[i].equals("\n") && lexemas[i+1].equals("'") && !lexemas[i].equals(";")) {
+                            ids.add(new Token("T_CHAR", lexemas[i], linha));
+                            i++;
+                        }
+                        else
+                            _erros.add(new Erro("ERR_CHAR", linha, "Char incorreto"));
+                            while(lexemas[i].equals("\n"))
+                                i++;
                         break;
                     case "\n": 
                         linha++; 
                         break;
                     default:
 
-                        if(verificaNum(lexemas[i]) == 2) // é int
+                        if(verificaNum(lexemas[i], i) == 2) // é int
                             tokens.add(new Token("T_NUM", Integer.parseInt(lexemas[i]), linha));
-                        else if(verificaNum(lexemas[i]) == 1) // é float
+                        else if(verificaNum(lexemas[i], i) == 1) // é float
                             tokens.add(new Token("T_NUM", Float.parseFloat(lexemas[i]), linha));
-                        else if(verificaNum(lexemas[i]) == 0) // é ID
+                        else if(verificaNum(lexemas[i], i) == 0) // é ID
                             ids.add(new Token("T_ID", lexemas[i], linha));
                     break;
                 }
@@ -171,17 +200,25 @@ public class Lex {
         }
     }
     
-    public int verificaNum(String str) {
+    
+    public int verificaNum(String str, int linha) {
         if(str != "\n" && str != "") {
             if(!Character.isDigit(str.charAt(0))) {
                 return 0; //é ID;
+            } else {
+                
+                for(int i = 0; i < str.length(); i++) {
+                    if(str.charAt(i) == '.')
+                        return 1; //é float
+                    else {
+                        if(!Character.isDigit(str.charAt(i))) {
+                            _erros.add(new Erro("ERR_VALOR", linha, "Valor inválido."));
+                            return -1; //erro
+                            
+                        }
+                    }
+                }
             }
-
-            for(int i = 0; i < str.length(); i++) {
-                if(str.charAt(i) == '.')
-                    return 1; //é float
-            }
-
             return 2; //é int
         }
         return -1; //é barra n

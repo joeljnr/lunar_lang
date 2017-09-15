@@ -1,0 +1,32 @@
+launch {
+  int a;
+  char b;
+  real c;
+  string d;
+  bool e;
+
+  i = 0;
+  b = 'a';
+
+  if(e == true & i = 0) {
+    d = "é verdade";
+  }
+
+  loop(i to 10) {
+    a++;
+  }
+
+  until(a < 0 | e == false) {
+    a--;
+  }
+
+  ..comentario de uma linha
+
+  ...
+  comentario
+  de
+  multiplas
+  linhas
+  ...
+
+}
