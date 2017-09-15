@@ -174,14 +174,14 @@ public class Lex {
                         
                         System.out.println(str);
                         if(!str.isEmpty())
-                            ids.add(new Token("T_STRING", str, linha));
+                            tokens.add(new Token("T_STRING", str, linha));
                         
                         break;
                     case "'": //reconhece char
                         i++;
                         System.out.println(lexemas[i]);
                         if(!lexemas[i].equals("'") && !lexemas[i].equals("\n") && lexemas[i+1].equals("'") && !lexemas[i].equals(";")) {
-                            ids.add(new Token("T_CHAR", lexemas[i], linha));
+                            tokens.add(new Token("T_CHAR", lexemas[i], linha));
                             i++;
                         }
                         else
@@ -199,7 +199,7 @@ public class Lex {
                         else if(verificaNum(lexemas[i], i) == 1) // é float
                             tokens.add(new Token("T_NUM", Float.parseFloat(lexemas[i]), linha));
                         else if(verificaNum(lexemas[i], i) == 0) // é ID
-                            ids.add(new Token("T_ID", lexemas[i], linha));
+                            tokens.add(new Token("T_ID", lexemas[i], linha));
                     break;
                 }
             } 
