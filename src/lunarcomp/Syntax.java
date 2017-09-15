@@ -11,8 +11,26 @@ public class Syntax {
     //melhorar o estado seguro
     public void erro(String token, int linha, String descr) {
         _erros.add(new Erro(token, linha, descr));
-        while(!tokens.get(pos).getToken().equals("\n"))
-            pos++;
+        boolean flag = false;
+        Token t  = tokens.get(pos);
+        
+        while(!flag) {
+            switch(t.getToken()){
+                case "T_ID": flag = true; break;
+                case "T_IF": flag = true; break;
+                case "T_LOOP": flag = true; break;
+                case "T_LOOP_DOWN": flag = true; break;
+                case "T_LOOP_TO": flag = true; break;
+                case "T_UNTIL": flag = true; break;
+                case "T_TYPE": flag = true; break;
+                case "T_SEMICOLON": flag = true; break;
+                case "T_BRACESL": flag = true; break;
+                case "T_BRACESR": flag = true; break;
+                default: pos++;
+            }
+            t = tokens.get(pos);
+        }
+        
     }
     
     public boolean termo() {
