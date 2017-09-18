@@ -21,16 +21,23 @@ public class Syntax {
         _erros.add(new Erro(token, linha, descr));
         boolean flag = false;
         if(pos < tokens.size()) {
-            Token t  = tokens.get(pos);
+            Token t;
+            if(tokens.get(pos).equals("T_BRACESR")){
+                t  = tokens.get(++pos);
+            } else {
+                t  = tokens.get(pos);
+            }
 
             while(!flag && pos < tokens.size()) {
                 switch(t.getToken()){
                     case "T_ID": flag = true; break;
+                    case "T_IF": flag = true; break;
                     case "T_LOOP": flag = true; break;
                     case "T_UNTIL": flag = true; break;
                     case "T_TYPE": flag = true; break;
                     case "T_SEMICOLON": flag = true; break;
                     case "T_BRACESL": flag = true; break;
+                    case "T_BRACESR": flag = true; break;
                     default: pos++;
                 }
                 if(pos < tokens.size())
@@ -491,14 +498,19 @@ public class Syntax {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
             RetornoSyntax rs;
-            if(atual.getToken().equals("T_BRACESR") || com_declaracao().isAceito() || com_atribuicao().isAceito() || com_if().isAceito() || com_loop().isAceito()) {
+            if(atual.getToken().equals("T_BRACESR") || com_declaracao().isAceito() || com_atribuicao().isAceito()) {
                 if(pos+1 < tokens.size())
                     atual = tokens.get(++pos);
-                else
-                    ultimo = true;
                 rs = new RetornoSyntax(ultimo, atual.getToken());
                 return rs;
                 
+            } else if(com_if().isAceito() || com_loop().isAceito()) {
+                if(pos+1 < tokens.size())
+                    atual = tokens.get(++pos);
+                else
+                    ultimo = false;
+                rs = new RetornoSyntax(ultimo, atual.getToken());
+                return rs;
             }
             else {
                 rs = new RetornoSyntax(false, atual.getToken());
@@ -515,10 +527,13 @@ public class Syntax {
             if(pos < tokens.size()) {
                 if(rs.getToken().equals("T_BRACESR")) {
                         return rs;
-                } else if(rs.isAceito()){
+                } else if(rs.isAceito())
                     return commands();
-                } else
-                    return rs;
+                else {
+                    
+                    erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
+                    return commands();
+                }
             }
         }
         return rs;
@@ -533,15 +548,16 @@ public class Syntax {
                 if(atual.getToken().equals("T_BRACESL")) {
                     atual = tokens.get(++pos);
                     if(commands().isAceito()) {
-                        //atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_BRACESR")) {
                             return new RetornoSyntax(true, atual.getToken());
                         } else {
-                            erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
-                            return new RetornoSyntax(false, atual.getToken());
+                                erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                                return new RetornoSyntax(false, atual.getToken());
                         }
                     } else if(atual.getToken().equals("T_BRACESR")) {
-                            return new RetornoSyntax(true, atual.getToken());
+                        erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                        return new RetornoSyntax(false, atual.getToken());
+                            
                     } else {
                         erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
                         return new RetornoSyntax(false, atual.getToken());
