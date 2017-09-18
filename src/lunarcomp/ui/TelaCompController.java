@@ -23,6 +23,7 @@ import javafx.stage.Window;
 import lunarcomp.Erro;
 import lunarcomp.Lex;
 import static lunarcomp.LunarComp._erros;
+import lunarcomp.Syntax;
 
 public class TelaCompController implements Initializable {
 
@@ -106,24 +107,36 @@ public class TelaCompController implements Initializable {
     private void evtExecutar(ActionEvent event) {
         txOutput.setText("");
         Lex l = new Lex();
-        l.ler_lexemas(txEditor.getText());
-        l.criar_tokens();
-        
-        /*
-        for(int i = 0; i < l.getIds().size(); i++) {
-            txOutput.setText(txOutput.getText() + "\nToken: " + l.getIds().get(i).getToken() + "\nId: " + l.getIds().get(i).getLex() + "\nLinha: " + l.getIds().get(i).getLinha() + "\n");
+        if(!txEditor.getText().isEmpty()) {
+            l.ler_lexemas(txEditor.getText());
+
+            l.criar_tokens();
+
+            Syntax s = new Syntax(l.getTokens(), 0);
+            
+            for(int i = 0; i < l.getTokens().size(); i++) {
+                System.out.println("Token: " + l.getTokens().get(i).getToken());
+                System.out.println("Lexema: " + l.getTokens().get(i).getLex());
+                System.out.println("Linha: " + l.getTokens().get(i).getLinha());
+                System.out.println();
+            }
+            if(s.launch().isAceito()) {
+                txOutput.setText(txOutput.getText() + "ACEITO\n");
+                for(int i = _erros.size()-1 ; i >= 0; i--) {
+                    txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
+                }
+            } else {
+                txOutput.setText("REJEITADO\n");
+                System.out.println(_erros.size());
+                for(int i = _erros.size()-1 ; i >= 0; i--) {
+                    txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
+                }
+            }
+            
+            _erros.clear();
+        } else {
+            txOutput.setText("Editor vazio!\n");
         }
-        */
-        /*
-        for(int i = 0; i < l.getTokens().size(); i++) {
-            txOutput.setText(txOutput.getText() + "\nToken: " + l.getTokens().get(i).getToken() + "\nLex: " + l.getTokens().get(i).getLex() + "\nLinha: " + l.getTokens().get(i).getLinha() + "\n");
-        }
-        */
-        
-        for(int i = 0; i < _erros.size(); i++) {
-            txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
-        }
-        _erros.clear();
     }
     
 }
