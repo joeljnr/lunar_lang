@@ -20,23 +20,22 @@ public class Syntax {
     public void erro(String token, int linha, String descr) {
         _erros.add(new Erro(token, linha, descr));
         boolean flag = false;
-        Token t  = tokens.get(pos);
-        
-        while(!flag) {
-            switch(t.getToken()){
-                case "T_ID": flag = true; break;
-                case "T_NUM": flag = true; break;
-                case "T_LOOP": flag = true; break;
-                case "T_LOOP_DOWN": flag = true; break;
-                case "T_LOOP_TO": flag = true; break;
-                case "T_UNTIL": flag = true; break;
-                case "T_TYPE": flag = true; break;
-                case "T_SEMICOLON": flag = true; break;
-                case "T_BRACESL": flag = true; break;
-                case "T_BRACESR": flag = true; break;
-                default: pos++;
+        if(pos < tokens.size()) {
+            Token t  = tokens.get(pos);
+
+            while(!flag && pos < tokens.size()) {
+                switch(t.getToken()){
+                    case "T_ID": flag = true; break;
+                    case "T_LOOP": flag = true; break;
+                    case "T_UNTIL": flag = true; break;
+                    case "T_TYPE": flag = true; break;
+                    case "T_SEMICOLON": flag = true; break;
+                    case "T_BRACESL": flag = true; break;
+                    default: pos++;
+                }
+                if(pos < tokens.size())
+                    t = tokens.get(pos);
             }
-            t = tokens.get(pos);
         }
         
     }
@@ -493,9 +492,13 @@ public class Syntax {
             atual = tokens.get(pos);
             RetornoSyntax rs;
             if(atual.getToken().equals("T_BRACESR") || com_declaracao().isAceito() || com_atribuicao().isAceito() || com_if().isAceito() || com_loop().isAceito()) {
-                atual = tokens.get(++pos);
+                if(pos+1 < tokens.size())
+                    atual = tokens.get(++pos);
+                else
+                    ultimo = true;
                 rs = new RetornoSyntax(ultimo, atual.getToken());
                 return rs;
+                
             }
             else {
                 rs = new RetornoSyntax(false, atual.getToken());
@@ -511,13 +514,11 @@ public class Syntax {
         if(rs != null) {
             if(pos < tokens.size()) {
                 if(rs.getToken().equals("T_BRACESR")) {
-                    //if(!t.getToken().equals("T_BRACESR"))
                         return rs;
-                } else {
-                    /*if(pos < tokens.size())
-                        pos++;*/
+                } else if(rs.isAceito()){
                     return commands();
-                }
+                } else
+                    return rs;
             }
         }
         return rs;
@@ -539,7 +540,12 @@ public class Syntax {
                             erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
                             return new RetornoSyntax(false, atual.getToken());
                         }
-                    } else return new RetornoSyntax(false, atual.getToken());
+                    } else if(atual.getToken().equals("T_BRACESR")) {
+                            return new RetornoSyntax(true, atual.getToken());
+                    } else {
+                        erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                        return new RetornoSyntax(false, atual.getToken());
+                    }
                 } else {
                     erro(atual.getToken(), atual.getLinha(), "[launch] Chave { esperada");
                     return new RetornoSyntax(false, atual.getToken());

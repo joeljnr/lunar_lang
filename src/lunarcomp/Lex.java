@@ -14,8 +14,8 @@ public class Lex {
         
         String str = codigo.replace(";", " ; ").replace("(", " ( ").replace(")", " ) ").replace("{", " { ").replace("}", " } ");
         str = str.replace("+", " + ").replace("-", " - ").replace("/", " / ").replace("*", " * ").replace(">", " > ");
-        str = str.replace("<", " < ").replace(">=", " >= ").replace("<=", " <= ").replace("==", " == ").replace("!=", " != ").replace("!", " ! ");
-        str = str.replace("+  +", " ++ ").replace("-  -", " -- ").replace("=", " = ").replace("..", " .. ").replace("\"", " \" ").replace("'", " ' ").replace(",", " , ");
+        str = str.replace("<", " < ").replace(">=", " >= ").replace("<=", " <= ").replace("=", " = ").replace("!=", " != ").replace("!", " ! ");
+        str = str.replace("+  +", " ++ ").replace("-  -", " -- ").replace("=  =", " == ").replace("..", " .. ").replace("\"", " \" ").replace("'", " ' ").replace(",", " , ");
         str = str.replace(".. .", " ... ").replace("\t", " ").replace("\n", " \n ").replaceAll("[ ]+", " ");
         
         lexemas = str.split(" ");
@@ -162,13 +162,17 @@ public class Lex {
                         case "\"": //reconhece string
                             str = "";
                             i++;
-                            while(i < lexemas.length && !lexemas[i].equals("\"") && !lexemas[i].equals("\n") && !lexemas[i].equals(";")) {
-                                if(!str.isEmpty())
-                                    str += " ";
-                                str += lexemas[i];
-                                i++;
+                            if(i < lexemas.length && lexemas[i].equals("\"")) {
+                                tokens.add(new Token("T_STRING", str, linha));
+                            } else {
+                                while(i < lexemas.length && !lexemas[i].equals("\"") && !lexemas[i].equals("\n") && !lexemas[i].equals(";")) {
+                                    if(!str.isEmpty())
+                                        str += " ";
+                                    str += lexemas[i];
+                                    i++;
+                                }
                             }
-
+                            
                             if(lexemas[i] == "\n" || lexemas[i].equals(";")) {
                                 _erros.add(new Erro("ERR_STR", linha, "String incorreta (erro léxico)"));
                             } 
@@ -176,7 +180,7 @@ public class Lex {
                             System.out.println(str);
                             if(!str.isEmpty())
                                 tokens.add(new Token("T_STRING", str, linha));
-
+                            
                             break;
                         case "'": //reconhece char
                             i++;

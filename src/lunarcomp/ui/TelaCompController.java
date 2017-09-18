@@ -120,7 +120,9 @@ public class TelaCompController implements Initializable {
                 System.out.println("Linha: " + l.getTokens().get(i).getLinha());
                 System.out.println();
             }
-            if(s.launch().isAceito()) {
+            
+            
+            if(s.launch().isAceito() && _erros.size() == 0) {
                 txOutput.setText(txOutput.getText() + "ACEITO\n");
                 for(int i = _erros.size()-1 ; i >= 0; i--) {
                     txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
@@ -135,7 +137,7 @@ public class TelaCompController implements Initializable {
             
             _erros.clear();
         } else {
-            txOutput.setText("Editor vazio!\n");
+            txOutput.setText("Launch não encontrado!\n");
         }
     }
     
