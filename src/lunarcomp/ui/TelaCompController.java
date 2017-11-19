@@ -21,6 +21,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import lunarcomp.Erro;
+import lunarcomp.ID;
 import lunarcomp.Lex;
 import static lunarcomp.LunarComp._erros;
 import lunarcomp.Syntax;
@@ -113,13 +114,14 @@ public class TelaCompController implements Initializable {
             l.criar_tokens();
 
             Syntax s = new Syntax(l.getTokens(), 0);
-            
+            /*
             for(int i = 0; i < l.getTokens().size(); i++) {
                 System.out.println("Token: " + l.getTokens().get(i).getToken());
                 System.out.println("Lexema: " + l.getTokens().get(i).getLex());
                 System.out.println("Linha: " + l.getTokens().get(i).getLinha());
                 System.out.println();
             }
+            */
             
             
             if(s.launch().isAceito() && _erros.size() == 0) {
@@ -135,6 +137,11 @@ public class TelaCompController implements Initializable {
                 }
             }
             
+            ArrayList<ID> ids = s.getIdtable();
+            
+            for(int i = 0; i < ids.size(); i++) {
+                System.out.println(ids.get(i).getTipo() + " " + ids.get(i).getNome());
+            }
             _erros.clear();
         } else {
             txOutput.setText("Launch não encontrado!\n");

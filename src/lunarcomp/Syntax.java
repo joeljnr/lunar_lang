@@ -9,12 +9,13 @@ public class Syntax {
     private int pos;
     private Token atual;
     private boolean ultimo = true;
+    private ArrayList<ID> idtable;
     
     public Syntax(ArrayList<Token> tokens, int pos) {
         this.tokens = tokens;
         this.pos = pos;
+        this.idtable = new ArrayList<ID>();
     }
-    
     
     //melhorar o estado seguro
     public void erro(String token, int linha, String descr) {
@@ -423,12 +424,24 @@ public class Syntax {
     }
     
     public RetornoSyntax com_atribuicao() {
+        int posid;
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
             if(atual.getToken().equals("T_ID")) {
+                posid = buscaID((String)atual.getLex());
+                if(posid == -1) { //se a varialvel não existe
+                    erro(atual.getToken(), atual.getLinha(), "Erro Semântico: Variável " + (String)atual.getLex() + " não existe");
+                    return new RetornoSyntax(false, atual.getToken());
+                }
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_OPU")) {
+                    if(!idtable.get(posid).getTipo().equals("int")) {
+                        erro(atual.getToken(), atual.getLinha(), "[com_atribuicao] Ponto e vírgula esperado");
+                        ultimo = false;
+                        return new RetornoSyntax(false, atual.getToken());
+                    }
+                        
                     atual = tokens.get(++pos);
                     if(atual.getToken().equals("T_SEMICOLON")) {
                         ultimo = true;
@@ -465,15 +478,35 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken());
     }
     
+    public int buscaID(String nome) {
+        
+        int posid = -1;
+        
+        for(int i = 0; i < idtable.size(); i++) {
+            if(idtable.get(i).getNome().equals(nome))
+                posid = i;
+        }
+        
+        return posid;
+    }
+    
     public RetornoSyntax com_declaracao() {
+        String tipo = "", nome = "";
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
-
             if(atual.getToken().equals("T_TYPE")) {
+                tipo = (String)atual.getLex(); //pega o tipo da variável
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_ID")) {
+                    if(buscaID((String)atual.getLex()) == -1) //se a varialvel não existe
+                        nome = (String)atual.getLex(); //pega o nome da variável
+                    else {
+                        _erros.add(new Erro((String)atual.getLex(), atual.getLinha(), "Erro Semântico: Variável já existe"));
+                        return new RetornoSyntax(false, atual.getToken());
+                    }
                     atual = tokens.get(++pos);
                     if(atual.getToken().equals("T_SEMICOLON")) {
+                        idtable.add(new ID(nome, tipo, false, atual.getLinha()));
                         ultimo = true;
                         return new RetornoSyntax(true, atual.getToken());
                     } else {
@@ -530,7 +563,6 @@ public class Syntax {
                 } else if(rs.isAceito())
                     return commands();
                 else {
-                    
                     erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
                     return commands();
                 }
@@ -591,6 +623,14 @@ public class Syntax {
 
     public void setPos(int pos) {
         this.pos = pos;
+    }
+
+    public ArrayList<ID> getIdtable() {
+        return idtable;
+    }
+
+    public void setIdtable(ArrayList<ID> idtable) {
+        this.idtable = idtable;
     }
     
     
