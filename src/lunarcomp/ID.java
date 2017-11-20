@@ -22,7 +22,9 @@ public class ID {
     }
     
     public void setValor(String tipo, String valor) {
-            if(tipo.equals("string"))
+        this.inicializado = true;
+        
+        if(tipo.equals("string"))
             this.valorstring = valor;
         else if(tipo.equals("int"))
             this.valorint = Integer.parseInt(valor);
@@ -50,44 +52,19 @@ public class ID {
         this.tipo = tipo;
     }
 
-    public String getString() {
-        return valorstring;
-    }
-
-    public void setString(String valorstring) {
-        this.valorstring = valorstring;
-    }
-
-    public int getInt() {
-        return valorint;
-    }
-
-    public void setInt(int valorint) {
-        this.valorint = valorint;
-    }
-
-    public float getFloat() {
-        return valorfloat;
-    }
-
-    public void setFloat(float valorfloat) {
-        this.valorfloat = valorfloat;
-    }
-
-    public char getChar() {
-        return valorchar;
-    }
-
-    public void setChar(char valorchar) {
-        this.valorchar = valorchar;
-    }
-
-    public boolean isBooelan() {
-        return valorboolean;
-    }
-
-    public void setBoolean(boolean valorboolean) {
-        this.valorboolean = valorboolean;
+    public Object getValor() {
+        if(this.tipo.equals("string"))
+            return valorstring;
+        else if(this.tipo.equals("int"))
+            return valorint;
+        else if(this.tipo.equals("float"))
+            return valorfloat;
+        else if(this.tipo.equals("char"))
+            return valorchar;
+        else if(this.tipo.equals("bool"))
+            return valorboolean;
+        else 
+            return null;
     }
 
     public boolean isInicializado() {

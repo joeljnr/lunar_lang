@@ -10,6 +10,7 @@ public class Syntax {
     private Token atual;
     private boolean ultimo = true;
     private ArrayList<ID> idtable;
+    private String exp;
     
     public Syntax(ArrayList<Token> tokens, int pos) {
         this.tokens = tokens;
@@ -93,6 +94,7 @@ public class Syntax {
     }
     
     public RetornoSyntax exp_aritmetica() {
+        
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
@@ -429,19 +431,31 @@ public class Syntax {
             atual = tokens.get(pos);
 
             if(atual.getToken().equals("T_ID")) {
+                //ANÁLISE SINTÁTICA
                 posid = buscaID((String)atual.getLex());
                 if(posid == -1) { //se a varialvel não existe
                     erro(atual.getToken(), atual.getLinha(), "Erro Semântico: Variável " + (String)atual.getLex() + " não existe");
                     return new RetornoSyntax(false, atual.getToken());
                 }
+                //
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_OPU")) {
+                    // ANÁLISE SINTÁTICA
                     if(!idtable.get(posid).getTipo().equals("int")) {
-                        erro(atual.getToken(), atual.getLinha(), "[com_atribuicao] Ponto e vírgula esperado");
+                        erro(atual.getToken(), atual.getLinha(), "Operações unárias são exclusivas para inteiros");
+                        ultimo = false;
+                        return new RetornoSyntax(false, atual.getToken());
+                    } else if(idtable.get(posid).isInicializado()) { //se tem um valor
+                        if(((String)atual.getLex()).equals("++"))//verifica qual operação unária está fazendo
+                            idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())+1));
+                        else if(((String)atual.getLex()).equals("--"))
+                            idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())+1));
+                    } else {
+                        erro(atual.getToken(), atual.getLinha(), "Variavel " + (String)atual.getLex() +" não inicializada");
                         ultimo = false;
                         return new RetornoSyntax(false, atual.getToken());
                     }
-                        
+                    //   
                     atual = tokens.get(++pos);
                     if(atual.getToken().equals("T_SEMICOLON")) {
                         ultimo = true;
@@ -453,10 +467,19 @@ public class Syntax {
                     }
                 } else if(atual.getToken().equals("T_ATR")) {
                     atual = tokens.get(++pos);
+                    int posaux = pos; // posição incial da expressão
+                    
                     if(exp_aritmetica().isAceito()) {
                         atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_SEMICOLON")) {
                             ultimo = true;
+                            //ANÁLISE SINTÁTICA
+                            Token taux = tokens.get(posaux);
+                            String exp = "";
+                            while(!taux.getToken().equals("T_SEMICOLON")) { //capturando a expressão
+                                exp += (String)taux.getLex();
+                            }
+                            
                             return new RetornoSyntax(true, atual.getToken());
                         } else {
                             erro(atual.getToken(), atual.getLinha(), "[com_atribuicao] Ponto e vírgula esperado");
@@ -501,7 +524,7 @@ public class Syntax {
                     if(buscaID((String)atual.getLex()) == -1) //se a varialvel não existe
                         nome = (String)atual.getLex(); //pega o nome da variável
                     else {
-                        _erros.add(new Erro((String)atual.getLex(), atual.getLinha(), "Erro Semântico: Variável já existe"));
+                        erro(atual.getToken(), atual.getLinha(), "Erro Semântico: Variável " + (String)atual.getLex() + " já existe");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                     atual = tokens.get(++pos);
@@ -564,7 +587,7 @@ public class Syntax {
                     return commands();
                 else {
                     erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
-                    return commands();
+                    //return commands();
                 }
             }
         }

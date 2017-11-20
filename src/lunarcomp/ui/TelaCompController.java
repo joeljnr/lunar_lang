@@ -123,7 +123,6 @@ public class TelaCompController implements Initializable {
             }
             */
             
-            
             if(s.launch().isAceito() && _erros.size() == 0) {
                 txOutput.setText(txOutput.getText() + "ACEITO\n");
                 for(int i = _erros.size()-1 ; i >= 0; i--) {
