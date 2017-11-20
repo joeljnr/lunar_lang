@@ -425,6 +425,51 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken());
     }
     
+    public void atribuicao_semantica(int inicio, ID id) {
+         //ANÁLISE SINTÁTICA
+        Token taux = tokens.get(inicio);
+        String tipo = id.getTipo();
+        
+        if(!id.isInicializado()) {
+            id.setInicializado(true);
+        } 
+        if(tipo.equals("int") || tipo.equals("real")) {
+            int valor1 = (int)tokens.get(inicio).getLex();
+            
+            char opr = (char)tokens.get(inicio+1).getLex();
+            if(opr == ';') {
+                int valor2 = (int)tokens.get(inicio+2).getLex();
+
+                switch(opr) {
+                    case '+':
+                        id.setValor(tipo, Integer.toString(valor1 + valor2));
+                        break;
+                    case '-':
+                        id.setValor(tipo, Integer.toString(valor1 - valor2));
+                        break;
+                    case '/':
+                        id.setValor(tipo, Integer.toString(valor1 / valor2));
+                        break;
+                    case '*':
+                        id.setValor(tipo, Integer.toString(valor1 * valor2));
+                        break;
+                    case '%':
+                        id.setValor(tipo, Integer.toString(valor1 % valor2));
+                        break;
+                }
+            } else {
+                id.setValor(tipo, Integer.toString(valor1));
+            }
+        } else if(tipo.equals("char")) {
+            char ch = (char)tokens.get(inicio).getLex();
+            id.setValor(tipo, Character.toString(ch));
+        } else if(tipo.equals("string")) {
+            id.setValor(tipo, (String)tokens.get(inicio).getLex());
+        } else if(tipo.equals("bool")) {
+            id.setValor(tipo, (String)tokens.get(inicio).getLex());
+        }
+    }
+    
     public RetornoSyntax com_atribuicao() {
         int posid;
         if(pos < tokens.size()) {
@@ -473,13 +518,7 @@ public class Syntax {
                         atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_SEMICOLON")) {
                             ultimo = true;
-                            //ANÁLISE SINTÁTICA
-                            Token taux = tokens.get(posaux);
-                            String exp = "";
-                            while(!taux.getToken().equals("T_SEMICOLON")) { //capturando a expressão
-                                exp += (String)taux.getLex();
-                            }
-                            
+                            atribuicao_semantica(posaux, idtable.get(posid));
                             return new RetornoSyntax(true, atual.getToken());
                         } else {
                             erro(atual.getToken(), atual.getLinha(), "[com_atribuicao] Ponto e vírgula esperado");
