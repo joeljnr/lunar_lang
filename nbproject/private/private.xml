@@ -5,6 +5,8 @@
         <group>
             <file>file:/Users/jnr/Desktop/fipp/Compiladores/lunar_lang/src/lunarcomp/Syntax.java</file>
             <file>file:/Users/jnr/Desktop/fipp/Compiladores/lunar_lang/src/lunarcomp/ID.java</file>
+            <file>file:/Users/jnr/Desktop/fipp/Compiladores/lunar_lang/src/lunarcomp/ui/TelaCompController.java</file>
+            <file>file:/Users/jnr/Desktop/fipp/Compiladores/lunar_lang/src/lunarcomp/Lex.java</file>
         </group>
     </open-files>
 </project-private>

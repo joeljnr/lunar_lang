@@ -430,106 +430,143 @@ public class Syntax {
         Token taux = tokens.get(inicio);
         String tipo = id.getTipo();
         id.setUltimouso(taux.getLinha());
-        
-        if(!id.isInicializado()) {
-            id.setInicializado(true);
-        } 
-        if(tipo.equals("int")) {
-            int valor1;
-            int posaux;
-            
-            if(tokens.get(inicio).getToken().equals("T_ID")) {
-                posaux = buscaID((String)tokens.get(inicio).getLex());
-                valor1 = (int)idtable.get(posaux).getValor();
-            } else {
-                valor1 = (int)tokens.get(inicio).getLex();
-            }
-            char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
-            if(opr != ';') {
-                int valor2;
-                if(tokens.get(inicio + 2).getToken().equals("T_ID")) {
-                    posaux = buscaID((String)tokens.get(inicio + 2).getLex());
-                    valor2 = (int)idtable.get(posaux).getValor();
-                } else {
-                    valor2 = (int)tokens.get(inicio+2).getLex();
-                }
-                switch(opr) {
-                    case '+':
-                        id.setValor(tipo, Integer.toString(valor1 + valor2));
-                        break;
-                    case '-':
-                        id.setValor(tipo, Integer.toString(valor1 - valor2));
-                        break;
-                    case '/':
-                        id.setValor(tipo, Integer.toString(valor1 / valor2));
-                        break;
-                    case '*':
-                        id.setValor(tipo, Integer.toString(valor1 * valor2));
-                        break;
-                    case '%':
-                        id.setValor(tipo, Integer.toString(valor1 % valor2));
-                        break;
-                }
-            } else {
-                id.setValor(tipo, Integer.toString(valor1));
-            }
-        } else if(tipo.equals("real")) {
-            float valor1 = (float)tokens.get(inicio).getLex();
-            
-            char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
-            if(opr != ';') {
-                float valor2 = (float)tokens.get(inicio+2).getLex();
 
-                switch(opr) {
-                    case '+':
-                        id.setValor(tipo, Float.toString(valor1 + valor2));
-                        break;
-                    case '-':
-                        id.setValor(tipo, Float.toString(valor1 - valor2));
-                        break;
-                    case '/':
-                        id.setValor(tipo, Float.toString(valor1 / valor2));
-                        break;
-                    case '*':
-                        id.setValor(tipo, Float.toString(valor1 * valor2));
-                        break;
-                    case '%':
-                        id.setValor(tipo, Float.toString(valor1 % valor2));
-                        break;
-                }
-            } else {
-                id.setValor(tipo, Float.toString(valor1));
+        if(!verifica_id_exp(inicio)) { //se não tem ids na expressão
+            if(!id.isInicializado()) {
+                id.setInicializado(true);
             }
-        } else if(tipo.equals("char")) {
-            String ch = (String)tokens.get(inicio).getLex();
-            id.setValor(tipo, ch);
-        } else if(tipo.equals("string")) {
-            id.setValor(tipo, (String)tokens.get(inicio).getLex());
-        } else if(tipo.equals("bool")) {
-            id.setValor(tipo, (String)tokens.get(inicio).getLex());
+            if(tipo.equals("int")) {
+                int valor1 = (int)tokens.get(inicio).getLex();    
+                
+                char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
+                if(opr != ';') {
+                    int valor2 = (int)tokens.get(inicio+2).getLex();
+                    
+                    switch(opr) {
+                        case '+':
+                            id.setValor(tipo, Integer.toString(valor1 + valor2));
+                            break;
+                        case '-':
+                            id.setValor(tipo, Integer.toString(valor1 - valor2));
+                            break;
+                        case '/':
+                            id.setValor(tipo, Integer.toString(valor1 / valor2));
+                            break;
+                        case '*':
+                            id.setValor(tipo, Integer.toString(valor1 * valor2));
+                            break;
+                        case '%':
+                            id.setValor(tipo, Integer.toString(valor1 % valor2));
+                            break;
+                    }
+                } else {
+                    id.setValor(tipo, Integer.toString(valor1));
+                }
+            } else if(tipo.equals("real")) {
+                float valor1 = (float)tokens.get(inicio).getLex();
+
+                char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
+                if(opr != ';') {
+                    float valor2 = (float)tokens.get(inicio+2).getLex();
+
+                    switch(opr) {
+                        case '+':
+                            id.setValor(tipo, Float.toString(valor1 + valor2));
+                            break;
+                        case '-':
+                            id.setValor(tipo, Float.toString(valor1 - valor2));
+                            break;
+                        case '/':
+                            id.setValor(tipo, Float.toString(valor1 / valor2));
+                            break;
+                        case '*':
+                            id.setValor(tipo, Float.toString(valor1 * valor2));
+                            break;
+                        case '%':
+                            id.setValor(tipo, Float.toString(valor1 % valor2));
+                            break;
+                    }
+                } else {
+                    id.setValor(tipo, Float.toString(valor1));
+                }
+            } else if(tipo.equals("char")) {
+                String ch = (String)tokens.get(inicio).getLex();
+                id.setValor(tipo, ch);
+            } else if(tipo.equals("string")) {
+                id.setValor(tipo, (String)tokens.get(inicio).getLex());
+            } else if(tipo.equals("bool")) {
+                id.setValor(tipo, (String)tokens.get(inicio).getLex());
+            }
         }
+    }
+
+    public boolean verifica_id_exp(int inicio) {
+        Token t = tokens.get(inicio);
+        int i = 0;
+        while(!t.getToken().equals("T_SEMICOLON")) {
+            if(t.getToken().equals("T_ID"))
+                return true;
+            i++;
+            t = tokens.get(inicio + i);
+        }
+        return false;
     }
     
     
     public boolean verifica_tipo(int inicio, ID id) {
         Token t = tokens.get(inicio);
+        boolean flag = true;
         
-        if((t.getToken().equals("T_ID") && idtable.get(buscaID((String)t.getLex())).getTipo().equals("int")) || 
-                id.getTipo().equals("int") && t.getLex() instanceof Integer)
-            return true;
-        else if((t.getToken().equals("T_ID") && idtable.get(buscaID((String)t.getLex())).getTipo().equals("real")) || 
-                id.getTipo().equals("real") && t.getLex() instanceof Float)
-            return true;
-        else if(id.getTipo().equals("char") && t.getLex() instanceof String && ((String)t.getLex()).length() == 1)
-            return true;
-        else if(id.getTipo().equals("string") && t.getLex() instanceof String && ((String)t.getLex()).length() > 1)
-            return true;
-        else if(id.getTipo().equals("bool") && (((String)t.getLex()).equals("true") || ((String)t.getLex()).equals("false")))
-            return true;
-        else {
-            //System.out.println((String)t.getLex());
-            return false;
+        if(verifica_id_exp(inicio)) { //se tem algum id na expressão
+            ID idaux;
+            for(int i = 0; flag && !t.getToken().equals("T_SEMICOLON"); i++) { 
+                idaux = idtable.get(buscaID((String)t.getLex()));
+                
+                if(t.getToken().equals("T_ID")) {
+                    idaux = idtable.get(buscaID((String)t.getLex()));
+                    if(idaux.getTipo().equals(id.getTipo()))
+                        flag = true;
+                    else 
+                        flag = false;
+                } else if(id.getTipo().equals("int") && t.getLex() instanceof Integer)
+                    flag = true;
+                else if(id.getTipo().equals("real") && t.getLex() instanceof Float)
+                    flag = true;
+                else if(id.getTipo().equals("char") && t.getLex() instanceof String && ((String)t.getLex()).length() == 1)
+                    flag = true;
+                else if(id.getTipo().equals("string") && t.getLex() instanceof String && ((String)t.getLex()).length() > 1)
+                    flag = true;
+                else if(id.getTipo().equals("bool") && (((String)t.getLex()).equals("true") || ((String)t.getLex()).equals("false")))
+                    flag = true;
+                else if(t.getLex().equals("T_OPA"))
+                    flag = true;
+                else
+                    flag = false;
+
+                t = tokens.get(inicio + i);
+            }
+        } else {
+            for(int i = 0; flag && !t.getToken().equals("T_SEMICOLON"); i++) { 
+                System.out.println(t.getLex() + " " + t.getToken());
+                if(id.getTipo().equals("int") && t.getLex() instanceof Integer)
+                    flag = true;
+                else if(id.getTipo().equals("real") && t.getLex() instanceof Float)
+                    flag = true;
+                else if(id.getTipo().equals("char") && t.getLex() instanceof String && ((String)t.getLex()).length() == 1)
+                    flag = true;
+                else if(id.getTipo().equals("string") && t.getLex() instanceof String && ((String)t.getLex()).length() > 1)
+                    flag = true;
+                else if(id.getTipo().equals("bool") && (((String)t.getLex()).equals("true") || ((String)t.getLex()).equals("false")))
+                    flag = true;
+                else if(t.getLex().equals("T_OPA"))
+                    flag = true;
+                else
+                    flag = false;
+
+                t = tokens.get(inicio + i);
+            }
         }
+        return flag;
     }
     
     public RetornoSyntax com_atribuicao() {
@@ -556,7 +593,7 @@ public class Syntax {
                         if(((String)atual.getLex()).equals("++"))//verifica qual operação unária está fazendo
                             idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())+1));
                         else if(((String)atual.getLex()).equals("--"))
-                            idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())+1));
+                            idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())-1));
                         
                     } else {
                         erro(atual.getToken(), atual.getLinha(), "Variavel " + (String)atual.getLex() +" não inicializada");
@@ -772,6 +809,7 @@ public class Syntax {
                 System.out.print(id.getValor());
             System.out.println("\t" + id.getUltimouso());
         }
+        System.out.println("");
     }
     
 }
