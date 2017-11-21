@@ -425,6 +425,7 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken());
     }
     
+    //atribui um valor ao id caso não seja outro id
     public void atribuicao_semantica(int inicio, ID id) {
          //ANÁLISE SEMÂNTICA
         Token taux = tokens.get(inicio);
@@ -499,7 +500,8 @@ public class Syntax {
             }
         }
     }
-
+    
+    //verifica se há um id na expressão entre inicio e ;
     public boolean verifica_id_exp(int inicio) {
         Token t = tokens.get(inicio);
         int i = 0;
@@ -512,15 +514,15 @@ public class Syntax {
         return false;
     }
     
-    
+    //verifica se o tipo da atribuição está correto
     public boolean verifica_tipo(int inicio, ID id) {
         Token t = tokens.get(inicio);
         boolean flag = true;
         
         if(verifica_id_exp(inicio)) { //se tem algum id na expressão
             ID idaux;
-            for(int i = 0; flag && !t.getToken().equals("T_SEMICOLON"); i++) { 
-                idaux = idtable.get(buscaID((String)t.getLex()));
+            int posaux;
+            for(int i = 0; flag && !t.getToken().equals("T_SEMICOLON"); i++) {
                 
                 if(t.getToken().equals("T_ID")) {
                     idaux = idtable.get(buscaID((String)t.getLex()));
@@ -538,7 +540,7 @@ public class Syntax {
                     flag = true;
                 else if(id.getTipo().equals("bool") && (((String)t.getLex()).equals("true") || ((String)t.getLex()).equals("false")))
                     flag = true;
-                else if(t.getLex().equals("T_OPA"))
+                else if(t.getToken().equals("T_OPA"))
                     flag = true;
                 else
                     flag = false;
@@ -547,7 +549,6 @@ public class Syntax {
             }
         } else {
             for(int i = 0; flag && !t.getToken().equals("T_SEMICOLON"); i++) { 
-                System.out.println(t.getLex() + " " + t.getToken());
                 if(id.getTipo().equals("int") && t.getLex() instanceof Integer)
                     flag = true;
                 else if(id.getTipo().equals("real") && t.getLex() instanceof Float)
@@ -558,11 +559,11 @@ public class Syntax {
                     flag = true;
                 else if(id.getTipo().equals("bool") && (((String)t.getLex()).equals("true") || ((String)t.getLex()).equals("false")))
                     flag = true;
-                else if(t.getLex().equals("T_OPA"))
+                else if(t.getToken().equals("T_OPA"))
                     flag = true;
-                else
+                else {
                     flag = false;
-
+                }        
                 t = tokens.get(inicio + i);
             }
         }
@@ -578,7 +579,7 @@ public class Syntax {
                 //ANÁLISE SINTÁTICA
                 posid = buscaID((String)atual.getLex());
                 if(posid == -1) { //se a varialvel não existe
-                    erro(atual.getToken(), atual.getLinha(), "Erro Semântico: Variável " + (String)atual.getLex() + " não existe");
+                    erro(atual.getToken(), atual.getLinha(), "[semântico] Variável " + (String)atual.getLex() + " não existe");
                     return new RetornoSyntax(false, atual.getToken());
                 }
                 //
@@ -586,17 +587,11 @@ public class Syntax {
                 if(atual.getToken().equals("T_OPU")) {
                     // ANÁLISE SEMÂNTICA
                     if(!idtable.get(posid).getTipo().equals("int")) {
-                        erro(atual.getToken(), atual.getLinha(), "Operações unárias são exclusivas para inteiros");
+                        erro(atual.getToken(), atual.getLinha(), "[semântico] Operações unárias são exclusivas para inteiros");
                         ultimo = false;
                         return new RetornoSyntax(false, atual.getToken());
-                    } else if(idtable.get(posid).isInicializado()) { //se tem um valor
-                        if(((String)atual.getLex()).equals("++"))//verifica qual operação unária está fazendo
-                            idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())+1));
-                        else if(((String)atual.getLex()).equals("--"))
-                            idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())-1));
-                        
-                    } else {
-                        erro(atual.getToken(), atual.getLinha(), "Variavel " + (String)atual.getLex() +" não inicializada");
+                    } else if(!idtable.get(posid).isInicializado()) { 
+                        erro(atual.getToken(), atual.getLinha(), "[semântico] Variavel " + idtable.get(posid).getNome() +" não inicializada");
                         ultimo = false;
                         return new RetornoSyntax(false, atual.getToken());
                     }
@@ -623,7 +618,7 @@ public class Syntax {
                                 atribuicao_semantica(posaux, idtable.get(posid));
                                 return new RetornoSyntax(true, atual.getToken());
                             } else {
-                                erro(atual.getToken(), atual.getLinha(), "Erro semântico: tipo incorreto para a variável " + idtable.get(posid).getNome());
+                                erro(atual.getToken(), atual.getLinha(), "[semântico] tipo incorreto para a variável " + idtable.get(posid).getNome());
                                 return new RetornoSyntax(false, atual.getToken());
                             }
                         } else {
@@ -646,6 +641,7 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken());
     }
     
+    //busca um id na idtable
     public int buscaID(String nome) {
         
         int posid = -1;
@@ -669,7 +665,7 @@ public class Syntax {
                     if(buscaID((String)atual.getLex()) == -1) //se a varialvel não existe
                         nome = (String)atual.getLex(); //pega o nome da variável
                     else {
-                        erro(atual.getToken(), atual.getLinha(), "Erro Semântico: Variável " + (String)atual.getLex() + " já existe");
+                        erro(atual.getToken(), atual.getLinha(), "[semântico] Variável " + (String)atual.getLex() + " já existe");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                     atual = tokens.get(++pos);
@@ -755,11 +751,11 @@ public class Syntax {
                                 return new RetornoSyntax(false, atual.getToken());
                         }
                     } else if(atual.getToken().equals("T_BRACESR")) {
-                        //erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                        erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
                         return new RetornoSyntax(false, atual.getToken());
                             
                     } else {
-                        erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                        //erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                 } else {
