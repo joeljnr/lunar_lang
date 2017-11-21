@@ -177,14 +177,14 @@ public class Lex {
                                 _erros.add(new Erro("ERR_STR", linha, "String incorreta (erro léxico)"));
                             } 
 
-                            System.out.println(str);
+                            //System.out.println(str);
                             if(!str.isEmpty())
                                 tokens.add(new Token("T_STRING", str, linha));
                             
                             break;
                         case "'": //reconhece char
                             i++;
-                            System.out.println(lexemas[i]);
+                            //System.out.println(lexemas[i]);
                             if(!lexemas[i].equals("'") && !lexemas[i].equals("\n") && lexemas[i+1].equals("'") && !lexemas[i].equals(";")) {
                                 tokens.add(new Token("T_CHAR", lexemas[i], linha));
                                 i++;

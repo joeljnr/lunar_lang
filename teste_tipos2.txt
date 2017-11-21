@@ -4,7 +4,10 @@ launch {
   real c;
   string d;
   bool e;
-
+  
+  a = 10;
   b = 'a';
-
+  c = 1.2;
+  d = "ola";
+  e = false;
 }

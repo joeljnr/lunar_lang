@@ -435,12 +435,24 @@ public class Syntax {
             id.setInicializado(true);
         } 
         if(tipo.equals("int")) {
-            int valor1 = (int)tokens.get(inicio).getLex();
+            int valor1;
+            int posaux;
             
+            if(tokens.get(inicio).getToken().equals("T_ID")) {
+                posaux = buscaID((String)tokens.get(inicio).getLex());
+                valor1 = (int)idtable.get(posaux).getValor();
+            } else {
+                valor1 = (int)tokens.get(inicio).getLex();
+            }
             char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
             if(opr != ';') {
-                int valor2 = (int)tokens.get(inicio+2).getLex();
-
+                int valor2;
+                if(tokens.get(inicio + 2).getToken().equals("T_ID")) {
+                    posaux = buscaID((String)tokens.get(inicio + 2).getLex());
+                    valor2 = (int)idtable.get(posaux).getValor();
+                } else {
+                    valor2 = (int)tokens.get(inicio+2).getLex();
+                }
                 switch(opr) {
                     case '+':
                         id.setValor(tipo, Integer.toString(valor1 + valor2));
@@ -502,9 +514,11 @@ public class Syntax {
     public boolean verifica_tipo(int inicio, ID id) {
         Token t = tokens.get(inicio);
         
-        if(id.getTipo().equals("int") && t.getLex() instanceof Integer)
+        if((t.getToken().equals("T_ID") && idtable.get(buscaID((String)t.getLex())).getTipo().equals("int")) || 
+                id.getTipo().equals("int") && t.getLex() instanceof Integer)
             return true;
-        else if(id.getTipo().equals("real") && t.getLex() instanceof Float)
+        else if((t.getToken().equals("T_ID") && idtable.get(buscaID((String)t.getLex())).getTipo().equals("real")) || 
+                id.getTipo().equals("real") && t.getLex() instanceof Float)
             return true;
         else if(id.getTipo().equals("char") && t.getLex() instanceof String && ((String)t.getLex()).length() == 1)
             return true;
@@ -724,8 +738,6 @@ public class Syntax {
         
     }
     
-    
-    
     public ArrayList<Token> getTokens() {
         return tokens;
     }
@@ -750,6 +762,16 @@ public class Syntax {
         this.idtable = idtable;
     }
     
-    
+    public void exibeIDTable() {
+        ID id;
+        System.out.println("TIPO\tNOME\tINIT\tVALOR\tULTIMOUSO");
+        for(int i = 0; i < idtable.size(); i++) {
+            id = idtable.get(i);
+            System.out.print(id.getTipo() + "\t" + id.getNome() + "\t" + id.isInicializado() + "\t");
+            if(id.isInicializado())
+                System.out.print(id.getValor());
+            System.out.println("\t" + id.getUltimouso());
+        }
+    }
     
 }

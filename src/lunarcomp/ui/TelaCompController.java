@@ -138,9 +138,8 @@ public class TelaCompController implements Initializable {
             
             ArrayList<ID> ids = s.getIdtable();
             
-            for(int i = 0; i < ids.size(); i++) {
-                System.out.println(ids.get(i).getTipo() + " " + ids.get(i).getNome());
-            }
+            s.exibeIDTable();
+            
             _erros.clear();
         } else {
             txOutput.setText("Launch não encontrado!\n");
