@@ -6,8 +6,8 @@ public class ID {
     
     private String valorstring;
     private int valorint;
-    private float valorfloat;
-    private char valorchar;
+    private float valorreal;
+    private String valorchar;
     private boolean valorboolean;
     
     private boolean inicializado;
@@ -24,14 +24,18 @@ public class ID {
     public void setValor(String tipo, String valor) {
         this.inicializado = true;
         
-        if(tipo.equals("string"))
+        if(tipo.equals("string")){
+            valor.replace("\"", "");
             this.valorstring = valor;
+        }
         else if(tipo.equals("int"))
             this.valorint = Integer.parseInt(valor);
-        else if(tipo.equals("float"))
-            this.valorfloat = Float.parseFloat(valor);
-        else if(tipo.equals("char"))
-            this.valorchar = valor.charAt(0);
+        else if(tipo.equals("real"))
+            this.valorreal = Float.parseFloat(valor);
+        else if(tipo.equals("char")) {
+            valor.replace("'", "");
+            this.valorchar = valor;
+        }
         else if(tipo.equals("bool"))
             this.valorboolean = Boolean.parseBoolean(valor);
     }
@@ -57,8 +61,8 @@ public class ID {
             return valorstring;
         else if(this.tipo.equals("int"))
             return valorint;
-        else if(this.tipo.equals("float"))
-            return valorfloat;
+        else if(this.tipo.equals("real"))
+            return valorreal;
         else if(this.tipo.equals("char"))
             return valorchar;
         else if(this.tipo.equals("bool"))

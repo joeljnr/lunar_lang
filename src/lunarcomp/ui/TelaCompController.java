@@ -130,7 +130,7 @@ public class TelaCompController implements Initializable {
                 }
             } else {
                 txOutput.setText("REJEITADO\n");
-                System.out.println(_erros.size());
+                //System.out.println(_erros.size());
                 for(int i = _erros.size()-1 ; i >= 0; i--) {
                     txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
                 }

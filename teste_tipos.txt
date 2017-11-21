@@ -1,0 +1,10 @@
+launch {
+  int a;
+  char b;
+  real c;
+  string d;
+  bool e;
+
+  b = 'a';
+
+}

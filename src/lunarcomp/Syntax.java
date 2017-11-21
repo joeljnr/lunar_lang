@@ -426,18 +426,19 @@ public class Syntax {
     }
     
     public void atribuicao_semantica(int inicio, ID id) {
-         //ANÁLISE SINTÁTICA
+         //ANÁLISE SEMÂNTICA
         Token taux = tokens.get(inicio);
         String tipo = id.getTipo();
+        id.setUltimouso(taux.getLinha());
         
         if(!id.isInicializado()) {
             id.setInicializado(true);
         } 
-        if(tipo.equals("int") || tipo.equals("real")) {
+        if(tipo.equals("int")) {
             int valor1 = (int)tokens.get(inicio).getLex();
             
-            char opr = (char)tokens.get(inicio+1).getLex();
-            if(opr == ';') {
+            char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
+            if(opr != ';') {
                 int valor2 = (int)tokens.get(inicio+2).getLex();
 
                 switch(opr) {
@@ -460,13 +461,60 @@ public class Syntax {
             } else {
                 id.setValor(tipo, Integer.toString(valor1));
             }
+        } else if(tipo.equals("real")) {
+            float valor1 = (float)tokens.get(inicio).getLex();
+            
+            char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
+            if(opr != ';') {
+                float valor2 = (float)tokens.get(inicio+2).getLex();
+
+                switch(opr) {
+                    case '+':
+                        id.setValor(tipo, Float.toString(valor1 + valor2));
+                        break;
+                    case '-':
+                        id.setValor(tipo, Float.toString(valor1 - valor2));
+                        break;
+                    case '/':
+                        id.setValor(tipo, Float.toString(valor1 / valor2));
+                        break;
+                    case '*':
+                        id.setValor(tipo, Float.toString(valor1 * valor2));
+                        break;
+                    case '%':
+                        id.setValor(tipo, Float.toString(valor1 % valor2));
+                        break;
+                }
+            } else {
+                id.setValor(tipo, Float.toString(valor1));
+            }
         } else if(tipo.equals("char")) {
-            char ch = (char)tokens.get(inicio).getLex();
-            id.setValor(tipo, Character.toString(ch));
+            String ch = (String)tokens.get(inicio).getLex();
+            id.setValor(tipo, ch);
         } else if(tipo.equals("string")) {
             id.setValor(tipo, (String)tokens.get(inicio).getLex());
         } else if(tipo.equals("bool")) {
             id.setValor(tipo, (String)tokens.get(inicio).getLex());
+        }
+    }
+    
+    
+    public boolean verifica_tipo(int inicio, ID id) {
+        Token t = tokens.get(inicio);
+        
+        if(id.getTipo().equals("int") && t.getLex() instanceof Integer)
+            return true;
+        else if(id.getTipo().equals("real") && t.getLex() instanceof Float)
+            return true;
+        else if(id.getTipo().equals("char") && t.getLex() instanceof String && ((String)t.getLex()).length() == 1)
+            return true;
+        else if(id.getTipo().equals("string") && t.getLex() instanceof String && ((String)t.getLex()).length() > 1)
+            return true;
+        else if(id.getTipo().equals("bool") && (((String)t.getLex()).equals("true") || ((String)t.getLex()).equals("false")))
+            return true;
+        else {
+            //System.out.println((String)t.getLex());
+            return false;
         }
     }
     
@@ -485,7 +533,7 @@ public class Syntax {
                 //
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_OPU")) {
-                    // ANÁLISE SINTÁTICA
+                    // ANÁLISE SEMÂNTICA
                     if(!idtable.get(posid).getTipo().equals("int")) {
                         erro(atual.getToken(), atual.getLinha(), "Operações unárias são exclusivas para inteiros");
                         ultimo = false;
@@ -495,6 +543,7 @@ public class Syntax {
                             idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())+1));
                         else if(((String)atual.getLex()).equals("--"))
                             idtable.get(posid).setValor("int", Integer.toString(((int)idtable.get(posid).getValor())+1));
+                        
                     } else {
                         erro(atual.getToken(), atual.getLinha(), "Variavel " + (String)atual.getLex() +" não inicializada");
                         ultimo = false;
@@ -518,8 +567,14 @@ public class Syntax {
                         atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_SEMICOLON")) {
                             ultimo = true;
-                            atribuicao_semantica(posaux, idtable.get(posid));
-                            return new RetornoSyntax(true, atual.getToken());
+                            //análise semantica!!!
+                            if(verifica_tipo(posaux, idtable.get(posid))) {
+                                atribuicao_semantica(posaux, idtable.get(posid));
+                                return new RetornoSyntax(true, atual.getToken());
+                            } else {
+                                erro(atual.getToken(), atual.getLinha(), "Erro semântico: tipo incorreto para a variável " + idtable.get(posid).getNome());
+                                return new RetornoSyntax(false, atual.getToken());
+                            }
                         } else {
                             erro(atual.getToken(), atual.getLinha(), "[com_atribuicao] Ponto e vírgula esperado");
                             ultimo = false;
@@ -625,7 +680,7 @@ public class Syntax {
                 } else if(rs.isAceito())
                     return commands();
                 else {
-                    erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
+                    //erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
                     //return commands();
                 }
             }
@@ -649,7 +704,7 @@ public class Syntax {
                                 return new RetornoSyntax(false, atual.getToken());
                         }
                     } else if(atual.getToken().equals("T_BRACESR")) {
-                        erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                        //erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
                         return new RetornoSyntax(false, atual.getToken());
                             
                     } else {
