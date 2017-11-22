@@ -10,7 +10,7 @@ public class Lex {
     private ArrayList<Token> ids;
     private String lexemas[];
     
-    public void ler_lexemas(String codigo) {
+    public void lerLexemas(String codigo) {
         
         String str = codigo.replace(";", " ; ").replace("(", " ( ").replace(")", " ) ").replace("{", " { ").replace("}", " } ");
         str = str.replace("+", " + ").replace("-", " - ").replace("/", " / ").replace("*", " * ").replace(">", " > ");
@@ -23,7 +23,7 @@ public class Lex {
         
     }
     
-    public void criar_tokens() {
+    public void criarTokens() {
         
         int linha = 1;
         int i, j;
@@ -236,7 +236,7 @@ public class Lex {
         return -1; //é barra n
     }
     
-    public static Token next_token(String cod) {
+    public static Token nextToken(String cod) {
         
         Token t = null;
         return t;

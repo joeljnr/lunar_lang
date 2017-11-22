@@ -109,9 +109,9 @@ public class TelaCompController implements Initializable {
         txOutput.setText("");
         Lex l = new Lex();
         if(!txEditor.getText().isEmpty()) {
-            l.ler_lexemas(txEditor.getText());
+            l.lerLexemas(txEditor.getText());
 
-            l.criar_tokens();
+            l.criarTokens();
 
             Syntax s = new Syntax(l.getTokens(), 0);
             /*
@@ -138,7 +138,7 @@ public class TelaCompController implements Initializable {
             
             ArrayList<ID> ids = s.getIdtable();
             
-            s.exibeIDTable();
+            s.exibeIdTable();
             
             _erros.clear();
         } else {

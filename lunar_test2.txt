@@ -6,30 +6,31 @@ launch {
   real c;
   string d;
   bool e;
-  
-  i = 0;
+
+  a = 10;
+  i = 2;
   e = true;
   f = a + i;
-  
+
   if(e == true & i == 0) {
     d = "é verdade";
   }
-  
+
   loop(i to 10) {
     a++;
   }
-  
+
   until(a < 0 | e == false) {
     a--;
   }
-  
+
   ..comentario de uma lihna
-  
+
   ...
   comentario
   de
   multiplas
   linhas
   ...
-  
+
 }

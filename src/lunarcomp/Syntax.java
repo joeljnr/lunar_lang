@@ -66,7 +66,7 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken()); 
     }
     
-    public RetornoSyntax exp_unaria() {
+    public RetornoSyntax expUnaria() {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
@@ -93,20 +93,20 @@ public class Syntax {
         
     }
     
-    public RetornoSyntax exp_aritmetica() {
+    public RetornoSyntax expAritmetica() {
         
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
-            if(exp_unaria().isAceito() && !tokens.get(pos+1).getToken().equals("T_OPA")) { 
+            if(expUnaria().isAceito() && !tokens.get(pos+1).getToken().equals("T_OPA")) { 
                 ultimo = true;
                 return new RetornoSyntax(true, atual.getToken());
             }
-            else if(exp_unaria().isAceito()) {
+            else if(expUnaria().isAceito()) {
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_OPA")) {
                     atual = tokens.get(++pos);
-                    if(exp_aritmetica().isAceito()) {
+                    if(expAritmetica().isAceito()) {
                         ultimo = true;
                         return new RetornoSyntax(true, atual.getToken());
                     } else {
@@ -128,19 +128,19 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken());
     }
     
-    public RetornoSyntax exp_relacional() {
+    public RetornoSyntax expRelacional() {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
-            if(exp_aritmetica().isAceito() && !tokens.get(pos+1).getToken().equals("T_OPR")){
+            if(expAritmetica().isAceito() && !tokens.get(pos+1).getToken().equals("T_OPR")){
                 ultimo = true;
                 return new RetornoSyntax(true, atual.getToken());
             }
-            else if(exp_aritmetica().isAceito()) {
+            else if(expAritmetica().isAceito()) {
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_OPR")) {
                     atual = tokens.get(++pos);
-                    if(exp_aritmetica().isAceito()) {
+                    if(expAritmetica().isAceito()) {
                         ultimo = true;
                         return new RetornoSyntax(true, atual.getToken());
                     } else {
@@ -162,19 +162,19 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken());
     }
     
-    public RetornoSyntax exp_logica() {
+    public RetornoSyntax expLogica() {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
-            if(exp_relacional().isAceito() && !tokens.get(pos+1).getToken().equals("T_OPL")) {
+            if(expRelacional().isAceito() && !tokens.get(pos+1).getToken().equals("T_OPL")) {
                 ultimo = true;
                 return new RetornoSyntax(true, atual.getToken());
             }
-            else if(exp_relacional().isAceito()) {
+            else if(expRelacional().isAceito()) {
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_OPL")) {
                     atual = tokens.get(++pos);
-                    if(exp_relacional().isAceito()) {
+                    if(expRelacional().isAceito()) {
                         ultimo = true;
                         return new RetornoSyntax(true, atual.getToken());
                     } else {
@@ -197,12 +197,12 @@ public class Syntax {
     }
     
     public RetornoSyntax exp() {
-        RetornoSyntax rs = exp_logica();
+        RetornoSyntax rs = expLogica();
         ultimo = rs.isAceito();
         return rs;
     }
     
-    public RetornoSyntax com_loop() {
+    public RetornoSyntax comLoop() {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
@@ -211,10 +211,20 @@ public class Syntax {
                 if(atual.getToken().equals("T_PARL")) {
                     atual = tokens.get(++pos);
                     if(atual.getToken().equals("T_ID") && (tokens.get(pos+1).getToken().equals("T_LOOP_TO") || tokens.get(pos+1).getToken().equals("T_LOOP_DOWN"))) {
+                        ID id = idtable.get(buscaId((String)atual.getLex()));
+                        if(id.getTipo().equals("int")) {
+                            if(!id.isInicializado()) {
+                                erro(atual.getToken(), atual.getLinha(), "[semântico - loop] variável " + id.getNome() +" não inicializada");
+                                return new RetornoSyntax(false, atual.getToken());
+                            }
+                        } else {
+                            erro(atual.getToken(), atual.getLinha(), "[semântico - loop] variável " + id.getNome() +" não é INT");
+                            return new RetornoSyntax(false, atual.getToken());
+                        }
                         atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_LOOP_TO")) {
                             atual = tokens.get(++pos);
-                            if(termo().isAceito()) {
+                            if(atual.getLex() instanceof Integer) {
                                 atual = tokens.get(++pos);
                                 if(atual.getToken().equals("T_PARR")) {
                                     atual = tokens.get(++pos);
@@ -336,10 +346,9 @@ public class Syntax {
         return new RetornoSyntax(false, atual.getToken());
     }
     
-    public RetornoSyntax com_if() {
+    public RetornoSyntax comIf() {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
-
             if(atual.getToken().equals("T_IF")) {
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_PARL")){
@@ -426,13 +435,13 @@ public class Syntax {
     }
     
     //atribui um valor ao id caso não seja outro id
-    public void atribuicao_semantica(int inicio, ID id) {
+    public void atribuicaoSemantica(int inicio, ID id) {
          //ANÁLISE SEMÂNTICA
         Token taux = tokens.get(inicio);
         String tipo = id.getTipo();
         id.setUltimouso(taux.getLinha());
 
-        if(!verifica_id_exp(inicio)) { //se não tem ids na expressão
+        if(!verificarIdExp(inicio)) { //se não tem ids na expressão
             if(!id.isInicializado()) {
                 id.setInicializado(true);
             }
@@ -502,7 +511,7 @@ public class Syntax {
     }
     
     //verifica se há um id na expressão entre inicio e ;
-    public boolean verifica_id_exp(int inicio) {
+    public boolean verificarIdExp(int inicio) {
         Token t = tokens.get(inicio);
         int i = 0;
         while(!t.getToken().equals("T_SEMICOLON")) {
@@ -515,17 +524,17 @@ public class Syntax {
     }
     
     //verifica se o tipo da atribuição está correto
-    public boolean verifica_tipo(int inicio, ID id) {
+    public boolean verificarTipo(int inicio, ID id) {
         Token t = tokens.get(inicio);
         boolean flag = true;
         
-        if(verifica_id_exp(inicio)) { //se tem algum id na expressão
+        if(verificarIdExp(inicio)) { //se tem algum id na expressão
             ID idaux;
             int posaux;
             for(int i = 0; flag && !t.getToken().equals("T_SEMICOLON"); i++) {
                 
                 if(t.getToken().equals("T_ID")) {
-                    idaux = idtable.get(buscaID((String)t.getLex()));
+                    idaux = idtable.get(buscaId((String)t.getLex()));
                     if(idaux.getTipo().equals(id.getTipo()))
                         flag = true;
                     else 
@@ -570,16 +579,16 @@ public class Syntax {
         return flag;
     }
     
-    public RetornoSyntax com_atribuicao() {
+    public RetornoSyntax comAtribuicao() {
         int posid;
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
 
             if(atual.getToken().equals("T_ID")) {
                 //ANÁLISE SINTÁTICA
-                posid = buscaID((String)atual.getLex());
+                posid = buscaId((String)atual.getLex());
                 if(posid == -1) { //se a varialvel não existe
-                    erro(atual.getToken(), atual.getLinha(), "[semântico] Variável " + (String)atual.getLex() + " não existe");
+                    erro(atual.getToken(), atual.getLinha(), "[semântico - atr] Variável " + (String)atual.getLex() + " não existe");
                     return new RetornoSyntax(false, atual.getToken());
                 }
                 //
@@ -587,11 +596,11 @@ public class Syntax {
                 if(atual.getToken().equals("T_OPU")) {
                     // ANÁLISE SEMÂNTICA
                     if(!idtable.get(posid).getTipo().equals("int")) {
-                        erro(atual.getToken(), atual.getLinha(), "[semântico] Operações unárias são exclusivas para inteiros");
+                        erro(atual.getToken(), atual.getLinha(), "[semântico - atr] Operações unárias são exclusivas para inteiros");
                         ultimo = false;
                         return new RetornoSyntax(false, atual.getToken());
                     } else if(!idtable.get(posid).isInicializado()) { 
-                        erro(atual.getToken(), atual.getLinha(), "[semântico] Variavel " + idtable.get(posid).getNome() +" não inicializada");
+                        erro(atual.getToken(), atual.getLinha(), "[semântico - atr] Variavel " + idtable.get(posid).getNome() +" não inicializada");
                         ultimo = false;
                         return new RetornoSyntax(false, atual.getToken());
                     }
@@ -609,16 +618,16 @@ public class Syntax {
                     atual = tokens.get(++pos);
                     int posaux = pos; // posição incial da expressão
                     
-                    if(exp_aritmetica().isAceito()) {
+                    if(expAritmetica().isAceito()) {
                         atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_SEMICOLON")) {
                             ultimo = true;
                             //análise semantica!!!
-                            if(verifica_tipo(posaux, idtable.get(posid))) {
-                                atribuicao_semantica(posaux, idtable.get(posid));
+                            if(verificarTipo(posaux, idtable.get(posid))) {
+                                atribuicaoSemantica(posaux, idtable.get(posid));
                                 return new RetornoSyntax(true, atual.getToken());
                             } else {
-                                erro(atual.getToken(), atual.getLinha(), "[semântico] tipo incorreto para a variável " + idtable.get(posid).getNome());
+                                erro(atual.getToken(), atual.getLinha(), "[semântico - atr] tipo incorreto para a variável " + idtable.get(posid).getNome());
                                 return new RetornoSyntax(false, atual.getToken());
                             }
                         } else {
@@ -642,7 +651,7 @@ public class Syntax {
     }
     
     //busca um id na idtable
-    public int buscaID(String nome) {
+    public int buscaId(String nome) {
         
         int posid = -1;
         
@@ -654,7 +663,7 @@ public class Syntax {
         return posid;
     }
     
-    public RetornoSyntax com_declaracao() {
+    public RetornoSyntax comDeclaracao() {
         String tipo = "", nome = "";
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
@@ -662,10 +671,10 @@ public class Syntax {
                 tipo = (String)atual.getLex(); //pega o tipo da variável
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_ID")) {
-                    if(buscaID((String)atual.getLex()) == -1) //se a varialvel não existe
+                    if(buscaId((String)atual.getLex()) == -1) //se a varialvel não existe
                         nome = (String)atual.getLex(); //pega o nome da variável
                     else {
-                        erro(atual.getToken(), atual.getLinha(), "[semântico] Variável " + (String)atual.getLex() + " já existe");
+                        erro(atual.getToken(), atual.getLinha(), "[semântico - dec] Variável " + (String)atual.getLex() + " já existe");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                     atual = tokens.get(++pos);
@@ -695,13 +704,13 @@ public class Syntax {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
             RetornoSyntax rs;
-            if(atual.getToken().equals("T_BRACESR") || com_declaracao().isAceito() || com_atribuicao().isAceito()) {
+            if(atual.getToken().equals("T_BRACESR") || comDeclaracao().isAceito() || comAtribuicao().isAceito()) {
                 if(pos+1 < tokens.size())
                     atual = tokens.get(++pos);
                 rs = new RetornoSyntax(ultimo, atual.getToken());
                 return rs;
                 
-            } else if(com_if().isAceito() || com_loop().isAceito()) {
+            } else if(comIf().isAceito() || comLoop().isAceito()) {
                 if(pos+1 < tokens.size())
                     atual = tokens.get(++pos);
                 else
@@ -795,7 +804,7 @@ public class Syntax {
         this.idtable = idtable;
     }
     
-    public void exibeIDTable() {
+    public void exibeIdTable() {
         ID id;
         System.out.println("TIPO\tNOME\tINIT\tVALOR\tULTIMOUSO");
         for(int i = 0; i < idtable.size(); i++) {
