@@ -212,6 +212,7 @@ public class Syntax {
                     atual = tokens.get(++pos);
                     if(atual.getToken().equals("T_ID") && (tokens.get(pos+1).getToken().equals("T_LOOP_TO") || tokens.get(pos+1).getToken().equals("T_LOOP_DOWN"))) {
                         ID id = idtable.get(buscaId((String)atual.getLex()));
+                        //análise semantica
                         if(id.getTipo().equals("int")) {
                             if(!id.isInicializado()) {
                                 erro(atual.getToken(), atual.getLinha(), "[semântico - loop] variável " + id.getNome() +" não inicializada");
@@ -221,6 +222,7 @@ public class Syntax {
                             erro(atual.getToken(), atual.getLinha(), "[semântico - loop] variável " + id.getNome() +" não é INT");
                             return new RetornoSyntax(false, atual.getToken());
                         }
+                        //
                         atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_LOOP_TO")) {
                             atual = tokens.get(++pos);
@@ -247,6 +249,7 @@ public class Syntax {
                                     } else {
                                         erro(atual.getToken(), atual.getLinha(), "[com_loop] Chave { esperada");
                                         ultimo = false;
+                                        System.out.println("aqui3");
                                         return new RetornoSyntax(false, atual.getToken());
                                     }
                                 } else {
@@ -262,43 +265,48 @@ public class Syntax {
                             atual = tokens.get(++pos);
                             if(atual.getToken().equals("T_LOOP_TO")) {
                                 atual = tokens.get(++pos);
-                                if(termo().isAceito()) {
+                                if(atual.getLex() instanceof Integer) {
                                     atual = tokens.get(++pos);
                                     if(atual.getToken().equals("T_PARR")) {
                                         atual = tokens.get(++pos);
                                         if(atual.getToken().equals("T_BRACESL")) {
                                             atual = tokens.get(++pos);
                                             if(commands().isAceito()) {
-                                                atual = tokens.get(pos);
-                                                if(atual.getToken().equals("T_BRACESL")) {
+                                                atual = tokens.get(++pos);
+                                                if(atual.getToken().equals("T_BRACESR")) {
                                                     ultimo = true;
                                                     return new RetornoSyntax(true, atual.getToken());
                                                 } else {
-                                                    erro(atual.getToken(), atual.getLinha(), "[com_loop] Chave { esperado");
+                                                    erro(atual.getToken(), atual.getLinha(), "[com_loop] Chave } esperado");
                                                     ultimo = false;
+                                                    System.out.println("aqui1");
                                                     return new RetornoSyntax(false, atual.getToken());
                                                 }
                                             } else {
                                                 ultimo = false;
+                                                System.out.println("aqui2");
                                                 return new RetornoSyntax(false, atual.getToken());
                                             }
                                         } else {
                                             erro(atual.getToken(), atual.getLinha(), "[com_loop] Chave { esperada");
                                             ultimo = false;
+                                            System.out.println("aqui3");
                                             return new RetornoSyntax(false, atual.getToken());
                                         }
                                     } else {
                                         erro(atual.getToken(), atual.getLinha(), "[com_loop] Parênteses ) esperado");
                                         ultimo = false;
+                                        System.out.println("aqui4");
                                         return new RetornoSyntax(false, atual.getToken());
                                     }
                                 } else {
                                     ultimo = false;
+                                    System.out.println("aqui5");
                                     return new RetornoSyntax(false, atual.getToken());
                                 }
                             }
                         }
-                    } else if(exp().isAceito()) {
+                    } else if(exp().isAceito()) { // é until
                         atual = tokens.get(++pos);
                         if(atual.getToken().equals("T_PARR")) {
                             atual = tokens.get(++pos);
@@ -316,6 +324,7 @@ public class Syntax {
                                     }
                                 } else {
                                     ultimo = false;
+                                    System.out.println("aqui6");
                                     return new RetornoSyntax(false, atual.getToken());
                                 }
                             } else {
@@ -330,6 +339,7 @@ public class Syntax {
                         }
                     } else {
                         ultimo = false;
+                        System.out.println("aqui7");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                 } else {
@@ -339,10 +349,12 @@ public class Syntax {
                 }   
             } else {
                 ultimo = false;
+                System.out.println("aqui8");
                 return new RetornoSyntax(false, atual.getToken());
             }
         }
         ultimo = false;
+        System.out.println("aqui9");
         return new RetornoSyntax(false, atual.getToken());
     }
     
@@ -444,68 +456,68 @@ public class Syntax {
         if(!verificarIdExp(inicio)) { //se não tem ids na expressão
             if(!id.isInicializado()) {
                 id.setInicializado(true);
-            }
-            if(tipo.equals("int")) {
-                int valor1 = (int)tokens.get(inicio).getLex();    
-                
-                char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
-                if(opr != ';') {
-                    int valor2 = (int)tokens.get(inicio+2).getLex();
-                    
-                    switch(opr) {
-                        case '+':
-                            id.setValor(tipo, Integer.toString(valor1 + valor2));
-                            break;
-                        case '-':
-                            id.setValor(tipo, Integer.toString(valor1 - valor2));
-                            break;
-                        case '/':
-                            id.setValor(tipo, Integer.toString(valor1 / valor2));
-                            break;
-                        case '*':
-                            id.setValor(tipo, Integer.toString(valor1 * valor2));
-                            break;
-                        case '%':
-                            id.setValor(tipo, Integer.toString(valor1 % valor2));
-                            break;
-                    }
-                } else {
-                    id.setValor(tipo, Integer.toString(valor1));
-                }
-            } else if(tipo.equals("real")) {
-                float valor1 = (float)tokens.get(inicio).getLex();
+                if(tipo.equals("int")) {
+                    int valor1 = (int)tokens.get(inicio).getLex();    
 
-                char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
-                if(opr != ';') {
-                    float valor2 = (float)tokens.get(inicio+2).getLex();
+                    char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
+                    if(opr != ';') {
+                        int valor2 = (int)tokens.get(inicio+2).getLex();
 
-                    switch(opr) {
-                        case '+':
-                            id.setValor(tipo, Float.toString(valor1 + valor2));
-                            break;
-                        case '-':
-                            id.setValor(tipo, Float.toString(valor1 - valor2));
-                            break;
-                        case '/':
-                            id.setValor(tipo, Float.toString(valor1 / valor2));
-                            break;
-                        case '*':
-                            id.setValor(tipo, Float.toString(valor1 * valor2));
-                            break;
-                        case '%':
-                            id.setValor(tipo, Float.toString(valor1 % valor2));
-                            break;
+                        switch(opr) {
+                            case '+':
+                                id.setValor(tipo, Integer.toString(valor1 + valor2));
+                                break;
+                            case '-':
+                                id.setValor(tipo, Integer.toString(valor1 - valor2));
+                                break;
+                            case '/':
+                                id.setValor(tipo, Integer.toString(valor1 / valor2));
+                                break;
+                            case '*':
+                                id.setValor(tipo, Integer.toString(valor1 * valor2));
+                                break;
+                            case '%':
+                                id.setValor(tipo, Integer.toString(valor1 % valor2));
+                                break;
+                        }
+                    } else {
+                        id.setValor(tipo, Integer.toString(valor1));
                     }
-                } else {
-                    id.setValor(tipo, Float.toString(valor1));
+                } else if(tipo.equals("real")) {
+                    float valor1 = (float)tokens.get(inicio).getLex();
+
+                    char opr = ((String)tokens.get(inicio+1).getLex()).charAt(0);
+                    if(opr != ';') {
+                        float valor2 = (float)tokens.get(inicio+2).getLex();
+
+                        switch(opr) {
+                            case '+':
+                                id.setValor(tipo, Float.toString(valor1 + valor2));
+                                break;
+                            case '-':
+                                id.setValor(tipo, Float.toString(valor1 - valor2));
+                                break;
+                            case '/':
+                                id.setValor(tipo, Float.toString(valor1 / valor2));
+                                break;
+                            case '*':
+                                id.setValor(tipo, Float.toString(valor1 * valor2));
+                                break;
+                            case '%':
+                                id.setValor(tipo, Float.toString(valor1 % valor2));
+                                break;
+                        }
+                    } else {
+                        id.setValor(tipo, Float.toString(valor1));
+                    }
+                } else if(tipo.equals("char")) {
+                    String ch = (String)tokens.get(inicio).getLex();
+                    id.setValor(tipo, ch);
+                } else if(tipo.equals("string")) {
+                    id.setValor(tipo, (String)tokens.get(inicio).getLex());
+                } else if(tipo.equals("bool")) {
+                    id.setValor(tipo, (String)tokens.get(inicio).getLex());
                 }
-            } else if(tipo.equals("char")) {
-                String ch = (String)tokens.get(inicio).getLex();
-                id.setValor(tipo, ch);
-            } else if(tipo.equals("string")) {
-                id.setValor(tipo, (String)tokens.get(inicio).getLex());
-            } else if(tipo.equals("bool")) {
-                id.setValor(tipo, (String)tokens.get(inicio).getLex());
             }
         }
     }
@@ -704,6 +716,7 @@ public class Syntax {
         if(pos < tokens.size()) {
             atual = tokens.get(pos);
             RetornoSyntax rs;
+            
             if(atual.getToken().equals("T_BRACESR") || comDeclaracao().isAceito() || comAtribuicao().isAceito()) {
                 if(pos+1 < tokens.size())
                     atual = tokens.get(++pos);
@@ -711,11 +724,14 @@ public class Syntax {
                 return rs;
                 
             } else if(comIf().isAceito() || comLoop().isAceito()) {
+                /*
                 if(pos+1 < tokens.size())
                     atual = tokens.get(++pos);
                 else
                     ultimo = false;
+                */
                 rs = new RetornoSyntax(ultimo, atual.getToken());
+                
                 return rs;
             }
             else {
@@ -736,7 +752,7 @@ public class Syntax {
                 } else if(rs.isAceito())
                     return commands();
                 else {
-                    //erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
+                    erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
                     //return commands();
                 }
             }
@@ -756,15 +772,12 @@ public class Syntax {
                         if(atual.getToken().equals("T_BRACESR")) {
                             return new RetornoSyntax(true, atual.getToken());
                         } else {
-                                erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                                System.out.println(atual.getToken());
+                                erro(atual.getToken(), atual.getLinha(), "[launch] a Chave } esperada");
                                 return new RetornoSyntax(false, atual.getToken());
-                        }
-                    } else if(atual.getToken().equals("T_BRACESR")) {
-                        erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
-                        return new RetornoSyntax(false, atual.getToken());
-                            
+                        }   
                     } else {
-                        //erro(atual.getToken(), atual.getLinha(), "[launch] Chave } esperada");
+                        erro(atual.getToken(), atual.getLinha(), "[launch] erro no commands");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                 } else {

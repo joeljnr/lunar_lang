@@ -20,6 +20,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import lunarcomp.CodIntermediario;
 import lunarcomp.Erro;
 import lunarcomp.ID;
 import lunarcomp.Lex;
@@ -128,6 +129,10 @@ public class TelaCompController implements Initializable {
                 for(int i = _erros.size()-1 ; i >= 0; i--) {
                     txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
                 }
+                s.exibeIdTable();
+                System.out.println("");
+                CodIntermediario c = new CodIntermediario();
+                System.out.println(c.gerarCodIntermediario(l.getTokens()));
             } else {
                 txOutput.setText("REJEITADO\n");
                 //System.out.println(_erros.size());
@@ -135,10 +140,6 @@ public class TelaCompController implements Initializable {
                     txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
                 }
             }
-            
-            ArrayList<ID> ids = s.getIdtable();
-            
-            s.exibeIdTable();
             
             _erros.clear();
         } else {
