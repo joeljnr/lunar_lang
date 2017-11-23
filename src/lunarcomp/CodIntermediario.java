@@ -7,7 +7,7 @@ public class CodIntermediario {
     public String gerarCodIntermediario(ArrayList<Token> tokens) {
         String cod = "", atual = "", ini = "", fim = "", id = "";
         Token t;
-        int idLoop = 0, idUntil = 0, idIf = 0;
+        int idLoop = 0, idUntil = 0, idIf = 0, idTemp = 0;
         boolean els = false, down = false;
         for(int i = 0; i < tokens.size(); i++) {
             t = tokens.get(i);
@@ -94,12 +94,60 @@ public class CodIntermediario {
                     cod += "goto " + fim + "\n";
                     break;
                 case "T_ATR":
-                    /*
+                    ArrayList<String> opr = new ArrayList<String>();
+                    String idAtr = (String)tokens.get(i-1).getLex();
+                    i++;
+                    String oprTemp;
+                    while(i < tokens.size() && !tokens.get(i).getToken().equals("T_SEMICOLON")) {
+                        if(tokens.get(i).getLex() instanceof Integer)
+                            opr.add(Integer.toString((int)tokens.get(i).getLex()));
+                        else if(tokens.get(i).getLex() instanceof Float)
+                            opr.add(Float.toString((float)tokens.get(i).getLex()));
+                        else 
+                            opr.add((String)tokens.get(i).getLex());
+                        
+                        i++;
+                    }
                     
-                    FAZER
+                    for(int n = 0; n < opr.size(); n++) { //tratando * ou /
+                        if(opr.get(n).equals("*") || opr.get(n).equals("/")) {
+                            if(opr.size() > 3) {
+                                idTemp++;
+                                oprTemp = "";
+
+                                oprTemp += opr.get(n - 1) + opr.get(n) + opr.get(n + 1); 
+                                opr.remove(n);
+                                opr.remove(n);
+                                opr.set(n-1, "temp" + idTemp);
+
+                                cod += opr.get(n-1) + " = " + oprTemp + "\n";
+                                n = 0;
+                            }
+                        }
+                    }
+
+                    for(int n = 0; n < opr.size(); n++) { //tratando + ou -
+                        if(opr.get(n).equals("+") || opr.get(n).equals("-")) {
+                            if(opr.size() > 3) {
+                                idTemp++;
+                                oprTemp = "";
+
+                                oprTemp += opr.get(n - 1) + opr.get(n) + opr.get(n + 1); 
+                                opr.remove(n);
+                                opr.remove(n);
+                                opr.set(n-1, "temp" + idTemp);
+
+                                cod += opr.get(n-1) + " = " + oprTemp + "\n";
+                                n = 0;
+                            }
+                        }
+                    }
                     
-                    */
-                    cod += t.getLex() + " ";
+                    cod += idAtr + " = ";
+                    for(int n = 0; n < opr.size(); n++)
+                        cod += opr.get(n);
+                    cod += "\n";
+                    
                     break;
                 case "T_OPA": 
                     cod += t.getLex() + " ";
@@ -122,7 +170,7 @@ public class CodIntermediario {
                     cod += " ";
                     break;
                 case "T_OPL": 
-                    if(t.getLex().equals("&")) {
+                    if(t.getLex().equals("&") && !atual.contains("until")) {
                         cod += "| ";
                     } else {
                         cod += "& ";
@@ -147,11 +195,24 @@ public class CodIntermediario {
                     cod += t.getLex() + " ";
                     break;
                 case "T_ID": 
-                    cod += t.getLex() + " ";
+                    if(!tokens.get(i + 1).getToken().equals("T_ATR"))
+                        cod += t.getLex() + " ";
                     break;
             }
         }
         
         return cod;
     }
+    
+    public int buscaMultOuDiv(String opr) {
+        int pos = -1;
+        
+        for(int i = 0; i < opr.length(); i++) {
+            if(opr.charAt(i) == '*' || opr.charAt(i) == '*')
+                pos = i;
+        }
+        
+        return pos;
+    }
+    
 }

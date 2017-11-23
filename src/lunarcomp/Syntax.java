@@ -18,9 +18,19 @@ public class Syntax {
         this.idtable = new ArrayList<ID>();
     }
     
-    //melhorar o estado seguro
+    public boolean buscaErro(Erro e) {
+        for(int i = 0; i < _erros.size(); i++) {
+            if(_erros.get(i).exibeErro().equals(e.exibeErro()))
+                return true;
+        }
+        return false;
+    }
+    
     public void erro(String token, int linha, String descr) {
-        _erros.add(new Erro(token, linha, descr));
+        Erro e = new Erro(token, linha, descr);
+        if(!buscaErro(e))
+            _erros.add(e);
+        
         boolean flag = false;
         if(pos < tokens.size()) {
             Token t;
@@ -55,6 +65,19 @@ public class Syntax {
 
             if(atual.getToken().equals("T_ID") || atual.getToken().equals("T_NUM") || atual.getToken().equals("T_BOOL")  || atual.getToken().equals("T_CHAR") || 
                     atual.getToken().equals("T_STRING")) {
+                
+                if(atual.getToken().equals("T_ID")) {
+                    int id = buscaId((String)atual.getLex());
+                    if(id == -1) {
+                        erro(atual.getToken(), atual.getLinha(), "[semântico - termo] Variável " + atual.getLex() + " não existe");
+                        ultimo = false;
+                        return new RetornoSyntax(false, atual.getToken());
+                    } else if(!idtable.get(id).isInicializado()) {
+                        erro(atual.getToken(), atual.getLinha(), "[semântico - termo] Variável " + atual.getLex() + " não inicializada");
+                        ultimo = false;
+                        return new RetornoSyntax(false, atual.getToken());
+                    }
+                }
                 ultimo = true;
                 return new RetornoSyntax(true, atual.getToken());
             }
@@ -75,6 +98,18 @@ public class Syntax {
                 return new RetornoSyntax(true, atual.getToken());
             }
             else if(atual.getToken().equals("T_ID")) {
+                //semantica
+                int id = buscaId((String)atual.getLex());
+                if(id == -1) {
+                    erro(atual.getToken(), atual.getLinha(), "[semântico - expu] Variável " + atual.getLex() + " não existe");
+                    ultimo = false;
+                    return new RetornoSyntax(false, atual.getToken());
+                } else if(!idtable.get(id).isInicializado()) {
+                    erro(atual.getToken(), atual.getLinha(), "[semântico - expu] Variável " + atual.getLex() + " não inicializada");
+                    ultimo = false;
+                    return new RetornoSyntax(false, atual.getToken());
+                }
+                //
                 atual = tokens.get(++pos);
                 if(atual.getToken().equals("T_OPU")){
                     ultimo = true;
@@ -110,7 +145,7 @@ public class Syntax {
                         ultimo = true;
                         return new RetornoSyntax(true, atual.getToken());
                     } else {
-                        erro(atual.getToken(), atual.getLinha(), "[exp_aritmetica] Expressão aritimética esperada");
+                        //erro(atual.getToken(), atual.getLinha(), "[exp_aritmetica] Expressão aritimética incorreta");
                         ultimo = false;
                         return new RetornoSyntax(false, atual.getToken());
                     }
@@ -120,7 +155,7 @@ public class Syntax {
                     return new RetornoSyntax(false, atual.getToken());
                 }   
             } else {
-                erro(atual.getToken(), atual.getLinha(), "[exp_aritmetica] Expressão unária esperada");
+                //erro(atual.getToken(), atual.getLinha(), "[exp_aritmetica] Expressão unária ou termo incorreto");
                 ultimo = false;
                 return new RetornoSyntax(false, atual.getToken());
             }
@@ -145,7 +180,7 @@ public class Syntax {
                         return new RetornoSyntax(true, atual.getToken());
                     } else {
                         ultimo = false;
-                        erro(atual.getToken(), atual.getLinha(), "[exp_relacional]Expressão aritimética esperada");
+                        //erro(atual.getToken(), atual.getLinha(), "[exp_relacional]Expressão aritimética esperada");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                 } else {
@@ -155,7 +190,7 @@ public class Syntax {
                 }   
             } else {
                 ultimo = false;
-                erro(atual.getToken(), atual.getLinha(), "[exp_relacional] Expressão aritmética esperada");
+                //erro(atual.getToken(), atual.getLinha(), "[exp_relacional] Expressão aritmética esperada");
                 return new RetornoSyntax(false, atual.getToken());
             }  
         }
@@ -178,7 +213,7 @@ public class Syntax {
                         ultimo = true;
                         return new RetornoSyntax(true, atual.getToken());
                     } else {
-                        erro(atual.getToken(), atual.getLinha(), "[exp_logica] Expressão relacional esperada");
+                        //erro(atual.getToken(), atual.getLinha(), "[exp_logica] Expressão relacional esperada");
                         ultimo = false;
                         return new RetornoSyntax(false, atual.getToken());
                     }
@@ -188,7 +223,7 @@ public class Syntax {
                     return new RetornoSyntax(false, atual.getToken());
                 }   
             } else {
-                erro(atual.getToken(), atual.getLinha(), "[exp_logica] Expressão relacional esperada");
+                //erro(atual.getToken(), atual.getLinha(), "[exp_logica] Expressão relacional esperada");
                 ultimo = false;
                 return new RetornoSyntax(false, atual.getToken());
             }  
@@ -272,14 +307,13 @@ public class Syntax {
                                         if(atual.getToken().equals("T_BRACESL")) {
                                             atual = tokens.get(++pos);
                                             if(commands().isAceito()) {
-                                                atual = tokens.get(++pos);
+                                                atual = tokens.get(pos);
                                                 if(atual.getToken().equals("T_BRACESR")) {
                                                     ultimo = true;
                                                     return new RetornoSyntax(true, atual.getToken());
                                                 } else {
                                                     erro(atual.getToken(), atual.getLinha(), "[com_loop] Chave } esperado");
                                                     ultimo = false;
-                                                    System.out.println("aqui1");
                                                     return new RetornoSyntax(false, atual.getToken());
                                                 }
                                             } else {
@@ -339,7 +373,6 @@ public class Syntax {
                         }
                     } else {
                         ultimo = false;
-                        System.out.println("aqui7");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                 } else {
@@ -349,12 +382,10 @@ public class Syntax {
                 }   
             } else {
                 ultimo = false;
-                System.out.println("aqui8");
                 return new RetornoSyntax(false, atual.getToken());
             }
         }
         ultimo = false;
-        System.out.println("aqui9");
         return new RetornoSyntax(false, atual.getToken());
     }
     
@@ -531,6 +562,7 @@ public class Syntax {
                 return true;
             i++;
             t = tokens.get(inicio + i);
+            
         }
         return false;
     }
@@ -539,12 +571,10 @@ public class Syntax {
     public boolean verificarTipo(int inicio, ID id) {
         Token t = tokens.get(inicio);
         boolean flag = true;
-        
         if(verificarIdExp(inicio)) { //se tem algum id na expressão
             ID idaux;
             int posaux;
             for(int i = 0; flag && !t.getToken().equals("T_SEMICOLON"); i++) {
-                
                 if(t.getToken().equals("T_ID")) {
                     idaux = idtable.get(buscaId((String)t.getLex()));
                     if(idaux.getTipo().equals(id.getTipo()))
@@ -565,7 +595,6 @@ public class Syntax {
                     flag = true;
                 else
                     flag = false;
-
                 t = tokens.get(inicio + i);
             }
         } else {
@@ -636,7 +665,8 @@ public class Syntax {
                             ultimo = true;
                             //análise semantica!!!
                             if(verificarTipo(posaux, idtable.get(posid))) {
-                                atribuicaoSemantica(posaux, idtable.get(posid));
+                                //atribuicaoSemantica(posaux, idtable.get(posid));
+                                idtable.get(posid).setInicializado(true);
                                 return new RetornoSyntax(true, atual.getToken());
                             } else {
                                 erro(atual.getToken(), atual.getLinha(), "[semântico - atr] tipo incorreto para a variável " + idtable.get(posid).getNome());
@@ -752,7 +782,7 @@ public class Syntax {
                 } else if(rs.isAceito())
                     return commands();
                 else {
-                    erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
+                    //erro(atual.getToken(), atual.getLinha(), "[commands] comando incorreto");
                     //return commands();
                 }
             }
@@ -772,12 +802,11 @@ public class Syntax {
                         if(atual.getToken().equals("T_BRACESR")) {
                             return new RetornoSyntax(true, atual.getToken());
                         } else {
-                                System.out.println(atual.getToken());
-                                erro(atual.getToken(), atual.getLinha(), "[launch] a Chave } esperada");
-                                return new RetornoSyntax(false, atual.getToken());
+                            erro(atual.getToken(), atual.getLinha(), "[launch] a Chave } esperada");
+                            return new RetornoSyntax(false, atual.getToken());
                         }   
                     } else {
-                        erro(atual.getToken(), atual.getLinha(), "[launch] erro no commands");
+                        //erro(atual.getToken(), atual.getLinha(), "[launch] erro no commands");
                         return new RetornoSyntax(false, atual.getToken());
                     }
                 } else {
@@ -819,12 +848,12 @@ public class Syntax {
     
     public void exibeIdTable() {
         ID id;
-        System.out.println("TIPO\tNOME\tINIT\tVALOR\tULTIMOUSO");
+        System.out.println("TIPO\tNOME\tINIT\tULTIMOUSO");
         for(int i = 0; i < idtable.size(); i++) {
             id = idtable.get(i);
             System.out.print(id.getTipo() + "\t" + id.getNome() + "\t" + id.isInicializado() + "\t");
-            if(id.isInicializado())
-                System.out.print(id.getValor());
+            //if(id.isInicializado())
+                //System.out.print(id.getValor());
             System.out.println("\t" + id.getUltimouso());
         }
         System.out.println("");
