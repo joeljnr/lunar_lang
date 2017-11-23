@@ -5,7 +5,9 @@ launch {
 	a = 10;
 	b = 0;
 	
-	loop(a down to 0) {
-		b++;
+	if(a > b) {
+		b = a;
+	} else {
+		a = b;
 	}
 }

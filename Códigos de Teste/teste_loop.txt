@@ -1,0 +1,21 @@
+launch {
+  	int a;
+  	int b;
+  	int c;
+  
+	a = 0;
+	b = 10;
+	c = 0;
+
+  	until(a > 10) {
+		a++;
+	}
+
+	loop(b down to 0) {
+		c++;
+	}
+
+	loop(c to 100) {
+		b = c + a * 15;
+	}
+}

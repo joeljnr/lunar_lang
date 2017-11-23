@@ -21,6 +21,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import lunarcomp.CodIntermediario;
+import lunarcomp.CodMaquina;
 import lunarcomp.Erro;
 import lunarcomp.ID;
 import lunarcomp.Lex;
@@ -129,10 +130,20 @@ public class TelaCompController implements Initializable {
                 for(int i = _erros.size()-1 ; i >= 0; i--) {
                     txOutput.setText(txOutput.getText() + _erros.get(i).exibeErro());
                 }
+                System.out.println("----- Tabela de Símbolos -----");
                 s.exibeIdTable();
                 System.out.println("");
                 CodIntermediario c = new CodIntermediario();
-                System.out.println(c.gerarCodIntermediario(l.getTokens()));
+                System.out.println("----- Código Intermediário -----");
+                String[] cod = c.getCod(l.getTokens());
+                CodMaquina cm = new CodMaquina();
+                
+                for(int j = 0; j < cod.length; j++) 
+                    System.out.println(cod[j]);
+                /*
+                System.out.println("----- Código de Máquina -----");
+                System.out.println(cm.getCod(cod));
+                */
             } else {
                 txOutput.setText("REJEITADO\n");
                 //System.out.println(_erros.size());

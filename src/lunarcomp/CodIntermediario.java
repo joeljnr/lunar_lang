@@ -4,7 +4,10 @@ import java.util.ArrayList;
 
 public class CodIntermediario {
     
-    public String gerarCodIntermediario(ArrayList<Token> tokens) {
+    private String[] linhas;
+    
+    public void gerarCodIntermediario(ArrayList<Token> tokens) {
+        
         String cod = "", atual = "", ini = "", fim = "", id = "";
         Token t;
         int idLoop = 0, idUntil = 0, idIf = 0, idTemp = 0;
@@ -45,7 +48,7 @@ public class CodIntermediario {
                         fim = "enduntil" + idUntil;
                         atual = "until"+idUntil;
                     }
-                    cod += atual + ": if ";
+                    cod += atual + " : if ";
                     break;
                 case "T_LOOP_DOWN": 
                     cod += "<= " + tokens.get(i + 2).getLex() + " ";
@@ -76,9 +79,9 @@ public class CodIntermediario {
                     if(fim.contains("endloop") || fim.contains("enduntil")) {
                         if(fim.contains("endloop"))
                             if(down)
-                                cod += id + " = " + id + " - 1\n";
+                                cod += id + " := " + id + "-1\n";
                             else
-                                cod += id + " = " + id + " + 1\n";
+                                cod += id + " := " + id + "+1\n";
                         
                         cod += "goto " + atual + "\n";
                         cod += fim + "\n";
@@ -120,7 +123,7 @@ public class CodIntermediario {
                                 opr.remove(n);
                                 opr.set(n-1, "temp" + idTemp);
 
-                                cod += opr.get(n-1) + " = " + oprTemp + "\n";
+                                cod += opr.get(n-1) + " := " + oprTemp + "\n";
                                 n = 0;
                             }
                         }
@@ -137,13 +140,13 @@ public class CodIntermediario {
                                 opr.remove(n);
                                 opr.set(n-1, "temp" + idTemp);
 
-                                cod += opr.get(n-1) + " = " + oprTemp + "\n";
+                                cod += opr.get(n-1) + " := " + oprTemp + "\n";
                                 n = 0;
                             }
                         }
                     }
                     
-                    cod += idAtr + " = ";
+                    cod += idAtr + " := ";
                     for(int n = 0; n < opr.size(); n++)
                         cod += opr.get(n);
                     cod += "\n";
@@ -178,9 +181,9 @@ public class CodIntermediario {
                     break;
                 case "T_OPU": 
                     if(t.getLex().equals("++"))
-                        cod += "= "+ tokens.get(i-1).getLex() +" + 1";
+                        cod += ":= "+ tokens.get(i-1).getLex() +" + 1";
                     else
-                        cod += "= "+ tokens.get(i-1).getLex() +" - 1";
+                        cod += ":= "+ tokens.get(i-1).getLex() +" - 1";
                     break;
                 case "T_OPN": 
                     cod += t.getLex() + " ";
@@ -200,19 +203,11 @@ public class CodIntermediario {
                     break;
             }
         }
-        
-        return cod;
+        linhas = cod.split("\n");
     }
-    
-    public int buscaMultOuDiv(String opr) {
-        int pos = -1;
-        
-        for(int i = 0; i < opr.length(); i++) {
-            if(opr.charAt(i) == '*' || opr.charAt(i) == '*')
-                pos = i;
-        }
-        
-        return pos;
+
+    public String[] getCod(ArrayList<Token> tokens) {
+        gerarCodIntermediario(tokens);
+        return linhas;
     }
-    
 }
